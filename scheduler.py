@@ -35,7 +35,7 @@ def create_instance(student,reservation_length):
 	now = datetime.datetime.now()
 	#later = now + datetime.timedelta(hours=reservation_length)
 	# XXX FIXME XXX
-	later = now + datetime.timedelta(seconds=60)
+	later = now + datetime.timedelta(seconds=60*int(reservation_length))
  	syslog.syslog(syslog.LOG_ERR, 'Server creation time for ' + str(server.id) + ' is ' + str(now))
  	syslog.syslog(syslog.LOG_ERR, 'Server destruction time for ' + str(server.id) + ' is ' + str(later))
 	# Schedule the server for deletion later
