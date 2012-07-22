@@ -45,7 +45,7 @@ def error404(error):
 #*********static files*************************
 @route('/bootstrap/css/<filename>')
 def send_static(filename):
-  return static_file(filename, root='/home/dan/Documents/hackathon/bootstrap/css')
+  return static_file(filename, root='/home/admin/hackavcl/bootstrap/css')
 
 
 #********Private Functions***********************

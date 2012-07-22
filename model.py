@@ -7,7 +7,9 @@ from elixir import *
 class Student(Entity):
     name = Field(UnicodeText, primary_key=True)
     email = Field(UnicodeText, primary_key=True)
-    reservation = ManyToOne('Reservation')
+    reservation = Field(UnicodeText)
+    #reservation = ManyToOne('Reservation')
+    # classes
 
 class Reservation(Entity):
     os_instance_id = Field(UnicodeText, primary_key=True)
@@ -19,6 +21,7 @@ class Reservation(Entity):
 class Class(Entity):
     name = Field(Unicode(10), primary_key=True)
     images = OneToMany('Image', cascade='all, delete-orphan')
+    # students
 
 class ImageType(Entity):
     name = Field(UnicodeText, required=True)

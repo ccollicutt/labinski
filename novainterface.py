@@ -6,10 +6,10 @@ from scheduler import create_instance
 import os
 
 def callnova(name, password,reservation_length):
-	
-	ip_address = create_instance(reservation_length)
+ 	student = Student.query.filter_by(name=unicode(name)).one()
+	server = create_instance(student,reservation_length)
 	usrinfo = str(name)+'.'+ip_address+'.info'
 	cmd0 = 'echo Reservation Legnth : '+ str(reservation_length) + '> userinfo'
 	os.system(cmd0)
 
-	return ip_address
+	return server
