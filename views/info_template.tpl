@@ -32,10 +32,10 @@ function logout()
           <legend>Instance Access Information for you:
             <input type="hidden" for="name" name="name" id="name" value="{{name}}"><b>{{name}}</b></input></legend>
  
-         <div class="control-group" style="width:50%">
+         <div class="control-group" style="width:70%">
           <div class="control-group" style="padding-left:15%">
             <label class="control-label" for="instance_id">Instance ID</label>
-            <label class="control-label" name="instance_id" id="instance_id">{{instance_id}}</label>
+            <label class="control-label" name="instance_id" id="instance_id" style="width:250px">{{instance_id}}</label>
           </div>
 
           <div class="control-group" style="padding-left:15%">
@@ -55,7 +55,7 @@ function logout()
           
           <div class="control-group" style="padding-left:15%">
              <label class="control-label" for="link">Access Link</label>
-             <a href="url">{{url}}</a>
+             <a href="{{url}}">{{url}}</a>
           </div>
         </div>
         
