@@ -32,7 +32,8 @@ class Flavor(Entity):
 class Image(Entity):
     os_image_id = Field(UnicodeText, primary_key=True)
     name = Field(UnicodeText, primary_key=True)
+    description = Field(UnicodeText, required=True) 
     flavor = ManyToOne('Flavor', required=True) 
-    type = ManyToOne('ImageType', required=True)
+    image_type = ManyToOne('ImageType', required=True)
     class_id = ManyToOne('Class')
 

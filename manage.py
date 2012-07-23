@@ -38,8 +38,8 @@ def add_student(name,email):
     Student(name=name, email=email)
     session.commit()
 
-def add_image(name,os_image_id, flavor,type):
-    Image(name=name, os_image_id=os_image_id, flavor=flavor,type=type)
+def add_image(name,os_image_id, flavor,image_type):
+    Image(name=name, os_image_id=os_image_id, flavor=flavor,image_type=image_type,description=description)
     session.commit()
 
 def add_flavor(os_id):
@@ -79,7 +79,9 @@ if __name__ == '__main__':
         if sys.argv[1] == 'loadtestdata':
             load_test_data()
     if len(sys.argv) == 4:
-	if sys.argv[1] == 'addstudent':
-	    add_student(sys.argv[2], sys.argv[3])
-	if sys.argv[1] == 'addimage':
-	    add_image(sys.argv[2], sys.argv[3])
+    	if sys.argv[1] == 'addstudent':
+    	    add_student(sys.argv[2], sys.argv[3])
+    if len(sys.argv) == 5:
+        if sys.argv[1] == 'addimage':
+            add_image(sys.argv[2], sys.argv[3], sys.argv[4])
+
