@@ -1,48 +1,13 @@
 #!/usr/bin/python2.6 python
 
-from bottle import route, run, template, get, post,request,static_file,error
-#import novainterface 
-from novainterface import callnova
+from bottle import route, run, template, get, post, request, static_file, error, Bottle
 from scheduler import *
 
-@get('/')
+app = Bottle()
+
+@app.route('/')
 def login():
-    return template('login_template')
-
-
-
-@post('/login')
-def login_submit():
-    name     = request.forms.get('name')
-    password = request.forms.get('password')
-    print name, password
-    existed = check_login(name,password)
-    syslog.syslog(syslog.LOG_ERR, 'before existed ' + name + ' ' + password)
-    if existed:
-      #reservation = check_instance(name)
-      syslog.syslog(syslog.LOG_ERR, 'In if existed')
-      student = Student.query.filter_by(name=unicode(name)).one()
-      if student.reservation :# show instance if yesa
-         #student = Student.query.filter_by(name=unicode(name)).one()
-         instance_id = student.reservation
-         syslog.syslog(syslog.LOG_ERR, 'In if instance, before find server')
-	 server = nova.servers.find(id=instance_id) 
-         syslog.syslog(syslog.LOG_ERR, 'In if instance, after find server')
-         ip = server.addresses['private'][0]['addr']
-         url = server.get_vnc_console('novnc')['console']['url']
-	 return template('info_template',name=name, ip=ip, url=url,instance_id=instance_id)
-      else: # reserve instance if no
-         return template('reserve_template',name=name)
-    else:
-        message=name+" does not exist" 
-        syslog.syslog(syslog.LOG_ERR, 'does not exist')
-        return template('error_template',message=message)
-
-@post('/logout')
-def logout():
-  name = request.forms.get('name')
-  print name
-  return template('login_template')
+    return template('index.tpl')
 
 @post('/reserve')
 def reserve():
@@ -63,7 +28,6 @@ def reserve():
       message = "Instance does not be reserved successfully, please contact admin"
       return template('error_template', message=message)
    
-
 @post('/release')
 def release():
   name = request.forms.get('name')
@@ -78,49 +42,15 @@ def release():
     message=instance_id + " release failed!"
     return tempalte('error_template',message=message)
 
-
 @error(404)
 def error404(error):
     return template('error_template', message=error)
 
 #*********static files*************************
-@route('/bootstrap/css/<filename>')
+@app.route('/bootstrap/css/<filename>')
 def css_static(filename):
-    return static_file(filename, root='/home/admin/hackavcl/bootstrap/css')
+    return static_file(filename, root='/vagrant/hackavcl/bootstrap/css')
 
-@route('/bootstrap/js/<filename>')
+@app.route('/bootstrap/js/<filename>')
 def js_static(filename):
-    return static_file(filename, root='/home/admin/hackavcl/bootstrap/js')
-
-#********Private Functions***********************
-
-# create instance
-def create_instance(name,time_span):
-   server_info = callnova(name,time_span)
-   return server_info
-
-# check the login information
-def check_login(name,password):
-  for s in Student.query.all():
-    if s.name == name :
-       return True
-  return False
-
-# check whether the student has the instance or not
-# name: student name
-def check_instance(name):
-   student = Student.query.filter_by(name=unicode(name)).one()
-   #has_instance = student.reservation
-   if student.reservation:
-      return False 
-   else:
-      return True
-#   return student
-
-# instance_id: instance id
-def terminate_instance(instance_id):
-  kill_instance(instance_id)  
-  success = 1#TODO terminate instance
-  return success
-
-run(host='10.0.2.15', port=8080)
+    return static_file(filename, root='/vagrant/hackavcl/bootstrap/js')
