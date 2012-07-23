@@ -17,8 +17,10 @@ def login_submit():
     password = request.forms.get('password')
     print name, password
     existed = check_login(name,password)
+    syslog.syslog(syslog.LOG_ERR, 'before existed ' + name + ' ' + password)
     if existed:
       #reservation = check_instance(name)
+      syslog.syslog(syslog.LOG_ERR, 'In if existed')
       student = Student.query.filter_by(name=unicode(name)).one()
       if student.reservation :# show instance if yesa
          #student = Student.query.filter_by(name=unicode(name)).one()
@@ -32,7 +34,8 @@ def login_submit():
       else: # reserve instance if no
          return template('reserve_template',name=name)
     else:
-        message=name+" does not exist"
+        message=name+" does not exist" 
+        syslog.syslog(syslog.LOG_ERR, 'does not exist')
         return template('error_template',message=message)
 
 @post('/logout')
@@ -100,10 +103,8 @@ def create_instance(name,time_span):
 def check_login(name,password):
   for s in Student.query.all():
     if s.name == name :
-       existed = True #check_user()
-    else:
-       existed = False
-  return existed
+       return True
+  return False
 
 # check whether the student has the instance or not
 # name: student name
