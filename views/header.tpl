@@ -73,9 +73,11 @@
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
               <li class="nav-header">Actions</li>
-              <li><a href="/">Home</a></li>
+              <li><a href="/">Dashboard</a></li>
               <li><a href="/reserve">Reserve a computer</a></li>
-              <li><a href="/show_images">Show all images</a></li>
+              <li><a href="/show_images">Show images available</a></li>
+              <li><a href="/notifications">Notifications</a></li>
+
             </ul>
           </div><!--/.well -->
         </div><!--/span-->

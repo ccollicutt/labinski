@@ -1,37 +1,34 @@
 %include header    
-    <div class="container" align="center">
-       <form class="form-horizontal" action="/reserve" method="post" name="reserve_form">
-        <fieldset>
+        <div class="span9">
+          <table class="table table-striped table-bordered table-condensed">
+            <thead>
+              <tr>
+                <th colspan="2">Reservation Schedule</th>
+              </tr>
+              <tr>
+                <th style="width: 15%">Start Time</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+ 			% for i in range(24):
+ 			<tr>
+ 				<td>{{i}}:00</td>
+ 				<td>
+                  <div class="btn-group">
+                    <button class="btn  dropdown-toggle" data-toggle="dropdown">Reserve<span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                      <li><a href="/reserve">matlab fake</a></li>
+                      <li><a href="/reserve">other image fake</a></li>
 
-
-        <div class="control-group" style="width: 30%">
-          <div class="control-group">
-            <label class="control-label" for="image">Image Type</label>
-            <div class="controls">
-              <select id="image" name="image">
-                <option value="matlab">matlab</option>
-                <option value="hadoop">hadoop</option>
-              </select>
-            </div>
-          </div>
-          <div class="control-group">
-            <label class="control-label" for="time_span">Time Span (hour)</label>
-            <div class="controls">
-              <select id="time_span" name="time_span">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-              </select>
-            </div>
-          </div>  
-        </div>
- 
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary" data-toggle="button">Reserve</button>
-            <button type="button" class="btn" onclick="logout()">Logout</button>
-          </div>
-
-        </fieldset>
-    </form>
+                    </ul>
+                  </div><!-- /btn-group -->
+ 				</td>
+ 			</tr>
+ 			%end # for i in range
+            </tbody>
+          </table>
+        
+          </div><!--/row-->
+        </div><!--/span-->
 %include footer
