@@ -7,26 +7,18 @@ app = Bottle()
 
 @app.route('/')
 def login():
-    return template('index.tpl')
+    return template('index')
 
-@post('/reserve')
+@app.route('/reserve')
 def reserve():
    name = request.forms.get('name')
    image = request.forms.get('image')
    time_span = request.forms.get('time_span')
+
+   if not name:
+      name = "curtis"
        
-   # create instance
-   #original instance = create_instance(image,time_span)
-   instance = create_instance(name,time_span)   
-   ip = instance.addresses['private'][0]['addr']
-   instance_id = str(instance.id)
-   url = instance.get_vnc_console('novnc')['console']['url']
-   #instance_id = 'instance 1'
-   if ip != '':
-      return template('info_template', name=name, ip=ip, url=url,instance_id=instance_id)
-   else:
-      message = "Instance does not be reserved successfully, please contact admin"
-      return template('error_template', message=message)
+   return template('reserve', name=name)
    
 @post('/release')
 def release():
