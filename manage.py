@@ -34,11 +34,15 @@ def init():
     Flavor(os_id=1)
     session.commit()
 
-def add_student(name,email):
-    Student(name=name, email=email)
+def add_student(name,email,_class=None):
+    if not _class:
+        Student(name=name, email=email)
+    else:
+        Student(name=name, email=email, classes=[_class])
+
     session.commit()
 
-def add_image(name,os_image_id, flavor,image_type):
+def add_image(name,os_image_id, flavor,image_type,description):
     Image(name=name, os_image_id=os_image_id, flavor=flavor,image_type=image_type,description=description)
     session.commit()
 
@@ -47,15 +51,39 @@ def add_flavor(os_id):
     session.commit()
 
 def add_class(name,image=""):
-    Class(name=name)
+    Class(name=name,images=[image])
     session.commit()
 
 def load_test_data():
-    add_student("curtis", "serverascode@gmail.com")
+
     f = Flavor.query.filter_by(os_id=1).one()
-    t = ImageType.query.filter_by(name='linux').one()
-    add_image(name="matlab", os_image_id=IMAGE, flavor=f, type=t)
-    add_class("Math 101")
+    windows = ImageType.query.filter_by(name='windows').one()
+    linux = ImageType.query.filter_by(name='linux').one()
+
+    # Using the IMAGE from settings.py for now...
+    add_image(name="matlab", os_image_id=IMAGE, flavor=f, image_type=linux, description="This image has matlab version 7.56 which allows for the math usages")
+    # Image cirros-0.3.0-x86_64-uec-ramdisk
+    add_image(name="photoshop", os_image_id="647abf63-fd95-42a7-a744-e1885f8d5c16", flavor=f, image_type=windows, description="This image has photoblops R456 for the blogginz")
+    
+    # Add a math class
+    matlab_image = Image.query.filter_by(name=unicode('matlab')).one()
+    add_class(name="Math 101",image=matlab_image)
+
+    # Add a photoshop class
+    education_image = Image.query.filter_by(name=unicode('photoshop')).one()
+    add_class(name="EDTECH 401", image=education_image)
+
+    # Add a student with a class
+    math_class = Class.query.filter_by(name=unicode('Math 101')).one()
+    education_class = Class.query.filter_by(name=unicode('EDTECH 401')).one()
+
+    add_student(name="curtis", email="serverascode@gmail.com", _class=math_class)
+    curtis = Student.query.filter_by(name=unicode('curtis')).one()
+    curtis.classes.append(education_class)
+    session.commit()
+
+    # Add a student without a class
+    add_student("test", "test@example.com")
 
 def runserver():
     ''' Starts development server. '''
@@ -68,6 +96,7 @@ def runserver():
     # Reloader
     run(app, host=eth0_ip, port=8080, reloader=True)
 
+# XXX FIX ME - Do proper arguments XXX
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         if sys.argv[1] == 'reset':

@@ -1,25 +1,42 @@
 #!/usr/bin/python2.6 python
 
 from bottle import route, run, template, get, post, request, static_file, error, Bottle
-from scheduler import *
+import scheduler
+from model import Student, Reservation, Class, Image
+from modelapi import init_db
+from settings import *
+
+# Init the model database
+init_db(DATABASE)
 
 app = Bottle()
 
+#XXX FIX ME XXXX
+name = "curtis"
+
+
 @app.route('/')
 def login():
-    return template('index')
+
+    student = Student.query.filter_by(name=unicode(name)).one()
+    classes = student.classes
+
+    return template('index', images=Image.query.all(), \
+                    classes=classes)
 
 @app.route('/reserve')
 def reserve():
    name = request.forms.get('name')
    image = request.forms.get('image')
    time_span = request.forms.get('time_span')
-
-   if not name:
-      name = "curtis"
        
    return template('reserve', name=name)
    
+
+@app.route('/show_images')
+def show_images():
+     return template('show_images', images=Image.query.all())
+
 @post('/release')
 def release():
   name = request.forms.get('name')
