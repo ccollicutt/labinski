@@ -35,7 +35,11 @@ def reserve():
 
 @app.route('/show_images')
 def show_images():
-     return template('show_images', images=Image.query.all())
+
+  student = Student.query.filter_by(name=unicode(name)).one()
+  classes = student.classes
+
+  return template('show_images', classes=classes)
 
 @post('/release')
 def release():

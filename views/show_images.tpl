@@ -13,14 +13,16 @@
               </tr>
             </thead>
             <tbody>
-              %for i in images:
-              <tr>
-                <td>{{i.name}}</td>
-                <td>{{i.image_type.name}}</td>
-                <td>{{i.description}}</td>
-                <td><a class="btn" href="">Reserve</a></td>
-              </tr>
-              %end
+              %for c in classes:
+                %for i in c.images:
+                <tr>
+                  <td>{{i.name}}</td>
+                  <td>{{i.image_type.name}}</td>
+                  <td>{{i.description}}</td>
+                  <td><a class="btn" href="">Reserve</a></td>
+                </tr>
+                %end # for i c.images
+              %end # for c in classes
             </tbody>
           </table>
         
