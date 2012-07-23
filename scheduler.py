@@ -3,7 +3,6 @@ import datetime
 from novaclient.v1_1 import client
 from settings import *
 from openstackrc import *
-from hackavcl import *
 import time
 import syslog
 
