@@ -1,11 +1,24 @@
 import sys
-from bottle import *
 from elixir import *
-from model import *
-from modelapi import *
+from model import Student, Reservation, Class, ImageType, Flavor, Image
+from modelapi import init_db
+from hackavcl import app
+from settings import *
+from bottle import run, debug
 
-DATABASE = "postgres://hackavcl:hackavclpw@localhost/hackavcl"
 init_db(DATABASE)
+
+import socket
+import fcntl
+import struct
+
+def get_ip_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(
+        s.fileno(),
+        0x8915,  # SIOCGIFADDR
+        struct.pack('256s', ifname[:15])
+    )[20:24])
 
 def reset():
     ''' Reset database and recreates tables. '''
@@ -38,21 +51,22 @@ def add_class(name,image=""):
     session.commit()
 
 def load_test_data():
-    add_student("curtis", "c.collicutt@gmail.com")
-    add_student("dan", "dhan3@ualberta.ca")
-    #add_flavor(os_id=1)
+    add_student("curtis", "serverascode@gmail.com")
     f = Flavor.query.filter_by(os_id=1).one()
     t = ImageType.query.filter_by(name='linux').one()
-    add_image(name="matlab", os_image_id="deb18ef1-ee5a-4cf7-852b-d4f37a2e1ace", flavor=f, type=t)
+    add_image(name="matlab", os_image_id=IMAGE, flavor=f, type=t)
     add_class("Math 101")
 
 def runserver():
     ''' Starts development server. '''
-    # Turn on debug somehow
+    # Turn on debug
     debug(True)
 
+    # Don't always want to run on local host when using vagrant to port forward
+    eth0_ip = get_ip_address('eth0')
+
     # Reloader
-    run(app, host='localhost', port=8080, reloader=True)
+    run(app, host=eth0_ip, port=8080, reloader=True)
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:
