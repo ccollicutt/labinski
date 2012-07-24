@@ -74,8 +74,9 @@
             <ul class="nav nav-list">
               <li class="nav-header">Actions</li>
               <li><a href="/">Dashboard</a></li>
-              <li><a href="/reserve">Reserve a computer</a></li>
-              <li><a href="/show_images">Show images available</a></li>
+              <li><a href="/reserve">Make a reservation</a></li>
+              <li><a href="/reservations">Current reservations</a></li>
+              <li><a href="/images">Show images available</a></li>
               <li><a href="/notifications">Notifications</a></li>
 
             </ul>

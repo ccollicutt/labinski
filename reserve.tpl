@@ -1,34 +1,48 @@
 %include header    
-        <div class="span9">
-          <table class="table table-striped table-bordered table-condensed">
-            <thead>
-              <tr>
-                <th colspan="2">Reservation Schedule</th>
-              </tr>
-              <tr>
-                <th style="width: 15%">Start Time</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
- 			% for i in range(24):
- 			<tr>
- 				<td>{{i}}:00</td>
- 				<td>
-                  <div class="btn-group">
-                    <button class="btn  dropdown-toggle" data-toggle="dropdown">Reserve<span class="caret"></span></button>
-                    <ul class="dropdown-menu">
-                      <li><a href="/reserve">matlab fake</a></li>
-                      <li><a href="/reserve">other image fake</a></li>
+        <div class="span4">
+        <form class="form-horizontal" action="/reservation" method="post">
+        <fieldset>
+          <div class="control-group">
+            <label class="control-label" for="select01">Start Time</label>
+            <div class="controls">
+              <select id="select01" name="reservation_time">
+                    <option>Now</option>
+                    %for i in range(24):
+                    <option>{{i}}:00</option>
+                    %end
+              </select>
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="select01">Image</label>
+            <div class="controls">
+              <select id="select01" name="reservation_image_name">
+                    %for c in classes:
+                      %for i in c.images:
+                    <option>{{i.name}}</option>
+                      %end # for i in c.images
+                    %end # for c in classes
+              </select>
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="reservation_length">Length</label>
+            <div class="controls">
+              <select id="select01" name="reservation_length">
+                    <option>1 Hour</option>
+                    <option>2 Hours</option>
+                    <option>4 Hours</option>
+                    <option>8 Hours</option>
+              </select>
+            </div>
+          </div>
 
-                    </ul>
-                  </div><!-- /btn-group -->
- 				</td>
- 			</tr>
- 			%end # for i in range
-            </tbody>
-          </table>
-        
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Reserve</button>
+            <button class="btn">Cancel</button>
+          </div>
+        </fieldset>
+      </form>
           </div><!--/row-->
         </div><!--/span-->
 %include footer
