@@ -74,9 +74,11 @@
             <ul class="nav nav-list">
               <li class="nav-header">Actions</li>
               <li><a href="/">Dashboard</a></li>
-              <li><a href="/reserve">Make a reservation</a></li>
+              <li><a href="/connections">Show connections</a></li>
+
+              <li><a href="/reserve">Make reservation</a></li>
               <li><a href="/reservations">Current reservations</a></li>
-              <li><a href="/images">Show images available</a></li>
+              <li><a href="/images">Show images</a></li>
               <li><a href="/notifications">Notifications</a></li>
 
             </ul>

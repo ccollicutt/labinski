@@ -1,7 +1,8 @@
 #!/usr/bin/python2.6 python
 
 from bottle import route, run, template, get, post, request, static_file, error, Bottle
-import scheduler
+#import scheduler
+from scheduler import *
 from model import Student, Reservation, Class, Image
 from modelapi import init_db
 from settings import *
@@ -33,8 +34,12 @@ def reserve():
   return template('reserve', classes=classes)
    
 
-#@app.route('/reservations'):
-#  pass
+@app.route('/reservations')
+def reservations():
+  student = Student.query.filter_by(name=unicode(name)).one()
+  reservations = student.reservations
+  return template('reservations', reservations=reservations)
+  
 
 @app.post('/reservation')
 def reservation():
@@ -42,9 +47,35 @@ def reservation():
   reservation_image_name = request.forms.reservation_image_name
   reservation_length = request.forms.reservation_length
 
+  student = Student.query.filter_by(name=unicode(name)).one()
+
+  # is_valid_student(name)
+  # is_valid_image(student)
+  # is_valid_reservation_time(time)
+
+  server = create_instance(student,4)
+
   return template('reservation', time=reservation_time, image_name=reservation_image_name, length=reservation_length)
 
+@app.route('/connections')
+def connections():
 
+  student = Student.query.filter_by(name=unicode(name)).one()
+
+  reservations = student.reservations
+
+  servers = []
+
+  for reservation in student.reservations:
+    # reservation name = server id
+    try:
+      server = nova.servers.find(id=reservation.name)
+    except:
+      server= None
+    if server:
+      servers.append(server)
+
+  return template('connections', servers=servers)
 
 @app.route('/images')
 def show_images():
@@ -54,25 +85,11 @@ def show_images():
 
   return template('show_images', classes=classes)
 
-@post('/release')
-def release():
-  name = request.forms.get('name')
-  student = Student.query.filter_by(name=unicode(name)).one()
-  instance_id = student.reservation
-  #instance_id = request.forms.get('instance_id')
-  print "release the instance: ", instance_id
-  success = terminate_instance(instance_id)
-  if success:
-    return template('reserve_template',name=name)
-  else:
-    message=instance_id + " release failed!"
-    return tempalte('error_template',message=message)
 
-@error(404)
-def error404(error):
-    return template('error_template', message=error)
+#
+# Static 
+#
 
-#*********static files*************************
 @app.route('/bootstrap/css/<filename>')
 def css_static(filename):
     return static_file(filename, root='/vagrant/hackavcl/bootstrap/css')

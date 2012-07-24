@@ -95,6 +95,7 @@ def runserver():
 
     # Reloader
     run(app, host=eth1_ip, port=8080, reloader=True)
+    #run(app, host="127.0.0.1", port=8080, reloader=True)
 
 # XXX FIX ME - Do proper arguments XXX
 if __name__ == '__main__':
