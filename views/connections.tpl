@@ -15,9 +15,9 @@
             <tbody>
               %for server in servers:
               <tr>
-                <td><a href="/someurl"><a href="{{server.get_vnc_console('novnc')['console']['url']}}">Matlab</a></td>
+                <td><a href="/someurl"><a href="{{server.get_vnc_console('novnc')['console']['url']}}" target="_blank">Matlab</a></td>
                 <td>Linux</td>
-                <td>ssh -p 2222 admin@10.0.4.5</td>
+                <td>ssh -p 2222 admin@{{server.addresses['private'][0]['addr']}}</td>
                 <td>superpownuclearbuttoncar</td>
               <tr>
               %end #for server in servers
