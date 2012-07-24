@@ -19,7 +19,7 @@
                     <button class="btn  dropdown-toggle" data-toggle="dropdown">Reserve<span class="caret"></span></button>
                     <ul class="dropdown-menu">
                       %for i in c.images:
-                      <li><a href="/reserve">{{i.name}}</a></li>
+                      <li><a href="/reserve/{{i.id}}">{{i.name}}</a></li>
                       %end
                     </ul>
                   </div><!-- /btn-group -->

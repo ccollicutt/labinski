@@ -91,10 +91,10 @@ def runserver():
     debug(True)
 
     # Don't always want to run on local host when using vagrant to port forward
-    eth0_ip = get_ip_address('eth0')
+    eth1_ip = get_ip_address('eth1')
 
     # Reloader
-    run(app, host=eth0_ip, port=8080, reloader=True)
+    run(app, host=eth1_ip, port=8080, reloader=True)
 
 # XXX FIX ME - Do proper arguments XXX
 if __name__ == '__main__':

@@ -26,14 +26,27 @@ def login():
 
 @app.route('/reserve')
 def reserve():
-   name = request.forms.get('name')
-   image = request.forms.get('image')
-   time_span = request.forms.get('time_span')
-       
-   return template('reserve', name=name)
+
+  student = Student.query.filter_by(name=unicode(name)).one()
+  classes = student.classes
+
+  return template('reserve', classes=classes)
    
 
-@app.route('/show_images')
+#@app.route('/reservations'):
+#  pass
+
+@app.post('/reservation')
+def reservation():
+  reservation_time = request.forms.reservation_time
+  reservation_image_name = request.forms.reservation_image_name
+  reservation_length = request.forms.reservation_length
+
+  return template('reservation', time=reservation_time, image_name=reservation_image_name, length=reservation_length)
+
+
+
+@app.route('/images')
 def show_images():
 
   student = Student.query.filter_by(name=unicode(name)).one()
