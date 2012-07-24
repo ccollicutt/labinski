@@ -7,12 +7,14 @@ from elixir import *
 class Student(Entity):
     name = Field(UnicodeText, primary_key=True)
     email = Field(UnicodeText, primary_key=True)
-    reservation = Field(UnicodeText)
-    #reservation = ManyToOne('Reservation')
+    #reservation = Field(UnicodeText)
+    #reservations = ManyToMany('Reservation', ondelete='cascade', single_parent=True)
+    reservations = ManyToMany('Reservation', cascade="all,delete-orphan")
+
     classes = ManyToMany('Class')
 
 class Reservation(Entity):
-    os_instance_id = Field(UnicodeText, primary_key=True)
+    name = Field(UnicodeText, primary_key=True)
     #start_time = Field(UnicodeText, primary_key=True)
     #stop_time = Field(UnicodeText, primary_key=True)
     #kill_job = Field(UnicodeText, primary_key=True)
