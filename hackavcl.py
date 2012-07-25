@@ -8,6 +8,7 @@ from model import Student, Reservation, Class, Image
 from modelapi import init_db
 from settings import *
 from beaker.middleware import SessionMiddleware
+from os import environ
 
 
 # Init the model database
@@ -18,26 +19,49 @@ init_db(DATABASE)
 session_opts = {
     'session.type': 'file',
     'session.cookie_expires': 300,
-    'session.data_dir': './data',
+    'session.data_dir': '/tmp',
     'session.auto': True
 }
 app = SessionMiddleware(bottle.app(), session_opts)
 
 
-
-#XXX FIX ME XXXX
-name = "curtis"
-
-
 @bottle.route('/')
 def slash():
 
-    student = Student.query.filter_by(name=unicode(name)).one()
+    try:
+      session = environ['beaker.session']
+    except:
+      redirect('/login')
+
+    # Check to see if a value is in the session
+    if not 'logged_in' in session:
+        redirect('/login')
+
+    student = Student.query.filter_by(name=unicode(name)).first()
     classes = student.classes
 
     return template('index', images=Image.query.all(), \
                     classes=classes)
 
+
+@bottle.post('/login')
+def login():
+
+    name = request.forms.name
+    password = request.forms.password
+    #user = Session.query(User).filter_by(name=name,
+    #                                         password=password).first()
+
+    student = Student.query.filter_by(name=unicode(name)).first()
+
+    if student:
+        session['logged_in'] = True
+        #session.save()
+    else:
+        error_msg = 'username ' + name + ' does not exist'
+        return template('login', error_msg=error_msg)
+
+    return template('login', error_msg=error_msg)
 
 @bottle.route('/login')
 def login():

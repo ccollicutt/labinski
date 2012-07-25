@@ -1,5 +1,6 @@
 APScheduler==2.0.3
 Babel==0.9.4
+Beaker==1.6.3
 Elixir==0.7.1
 Jinja2==2.2.1
 PyXML==0.8.4
