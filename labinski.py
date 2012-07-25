@@ -1,7 +1,7 @@
 #!/usr/bin/python2.6 python
 
 import bottle
-from bottle import route, run, template, get, post, request, static_file, error, Bottle, redirect
+from bottle import route, run, template, get, post, request, static_file, error, Bottle, redirect, abort
 #import scheduler
 from scheduler import *
 from model import Student, Reservation, Class, Image
@@ -24,23 +24,40 @@ session_opts = {
 }
 app = SessionMiddleware(bottle.app(), session_opts)
 
+def check_login(beaker_session):
+  
+  if not 'logged_in' in beaker_session:
+    abort(401, "Not logged in in check login")
+
+  name = beaker_session['name']
+  student = Student.query.filter_by(name=unicode(name)).first()
+
+  if student:
+    return student
+
+  return None
 
 @bottle.route('/')
 def slash():
 
-    try:
-      session = environ['beaker.session']
-    except:
-      redirect('/login')
+  try:
+    beaker_session = request.environ['beaker.session']
+  except:
+    redirect('/login')
 
-    # Check to see if a value is in the session
-    if not 'logged_in' in session:
-        redirect('/login')
+  try:
+    name = beaker_session['name']
+  except:
+    redirect('/login')
 
-    student = Student.query.filter_by(name=unicode(name)).first()
+  student = check_login(beaker_session)
+
+  if student:
     classes = student.classes
+  else:
+    abort(401, "No student object")
 
-    return template('index', images=Image.query.all(), \
+  return template('index', images=Image.query.all(), \
                     classes=classes)
 
 
@@ -49,47 +66,102 @@ def login():
 
     name = request.forms.name
     password = request.forms.password
-    #user = Session.query(User).filter_by(name=name,
-    #                                         password=password).first()
 
-    student = Student.query.filter_by(name=unicode(name)).first()
+    try:
+      student = Student.query.filter_by(name=unicode(name)).first()
+    except:
+      abort(401, "No student object in login")
 
     if student:
-        session['logged_in'] = True
-        #session.save()
+        beaker_session = request.environ['beaker.session']
+        beaker_session['logged_in'] = True
+        beaker_session['name'] = name
+        redirect('/')
     else:
-        error_msg = 'username ' + name + ' does not exist'
+        error_msg = 'username or password not valid'
         return template('login', error_msg=error_msg)
 
+    error_msg = 'Failed to find student'
     return template('login', error_msg=error_msg)
 
 @bottle.route('/login')
 def login():
     return template('login')
 
+@bottle.route('/logout')
+def logout():
+  try:
+    beaker_session = request.environ['beaker.session']
+    student = check_login(beaker_session)
+  except:
+    redirect('/login')
+
+  request.environ['beaker.session'].delete()
+  redirect('/login')
+
 @bottle.route('/reserve')
 def reserve():
 
-  student = Student.query.filter_by(name=unicode(name)).one()
-  classes = student.classes
+  try:
+    beaker_session = request.environ['beaker.session']
+  except:
+    abort(401, "No session")
+
+  try:
+    name = beaker_session['name']
+  except:
+    abort(401, "No session name")
+
+  student = check_login(beaker_session)
+
+  if student:
+    classes = student.classes
+  else:
+    abort(401, "No student object")
 
   return template('reserve', classes=classes)
    
 
 @bottle.route('/reservations')
 def reservations():
-  student = Student.query.filter_by(name=unicode(name)).one()
-  reservations = student.reservations
+  try:
+    beaker_session = request.environ['beaker.session']
+  except:
+    abort(401, "No session")
+
+  try:
+    name = beaker_session['name']
+  except:
+    abort(401, "No session name")
+
+  student = check_login(beaker_session)
+
+  if student:
+    reservations = student.reservations
+  else:
+    abort(401, "No student object")
+
   return template('reservations', reservations=reservations)
   
 
 @bottle.post('/reservation')
 def reservation():
+
+  try:
+    beaker_session = request.environ['beaker.session']
+  except:
+    abort(401, "No session")
+
+  try:
+    name = beaker_session['name']
+  except:
+    abort(401, "No session name")
+
+  student = check_login(beaker_session)
+
   reservation_time = request.forms.reservation_time
   reservation_image_name = request.forms.reservation_image_name
   reservation_length = request.forms.reservation_length
-
-  student = Student.query.filter_by(name=unicode(name)).one()
 
   # is_valid_student(name)
   # is_valid_image(student)
@@ -102,6 +174,19 @@ def reservation():
 
 @bottle.route('/connections')
 def connections():
+
+  try:
+    beaker_session = request.environ['beaker.session']
+  except:
+    redirect('/login')
+  
+  if not beaker_session['logged_in']:
+    redirect('/login')
+
+  try:
+    name = beaker_session['name']
+  except:
+    redirect('/login')
 
   student = Student.query.filter_by(name=unicode(name)).one()
 
@@ -123,10 +208,20 @@ def connections():
 @bottle.route('/images')
 def show_images():
 
-  student = Student.query.filter_by(name=unicode(name)).one()
+  try:
+    beaker_session = request.environ['beaker.session']
+  except:
+    abort(401, "No session")
+
+  try:
+    name = beaker_session['name']
+  except:
+    abort(401, "No session name")
+
+  student = check_login(beaker_session)
   classes = student.classes
 
-  return template('show_images', classes=classes)
+  return template('show_images', classes=classes, name=student.name)
 
 
 #
