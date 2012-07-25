@@ -2,7 +2,7 @@ import sys
 from elixir import *
 from model import Student, Reservation, Class, ImageType, Flavor, Image
 from modelapi import init_db
-from hackavcl import app
+from labinski import app
 from settings import *
 from bottle import run, debug
 
