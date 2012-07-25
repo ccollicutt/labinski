@@ -8,17 +8,18 @@ class Student(Entity):
     name = Field(UnicodeText, primary_key=True)
     email = Field(UnicodeText, primary_key=True)
     reservations = OneToMany('Reservation', cascade="all,delete-orphan")
-
     classes = ManyToMany('Class')
 
 class Reservation(Entity):
     student = ManyToOne('Student')
+    class_id = ManyToOne('Class')
     name = Field(UnicodeText, primary_key=True)
 
 class Class(Entity):
     name = Field(Unicode(10), primary_key=True)
     images = ManyToMany('Image')
     students = ManyToMany('Student')
+    reservations = OneToMany('Reservation', cascade="all,delete-orphan")
 
 class ImageType(Entity):
     name = Field(UnicodeText, required=True)
@@ -32,6 +33,5 @@ class Image(Entity):
     description = Field(UnicodeText, required=True) 
     flavor = ManyToOne('Flavor', required=True) 
     image_type = ManyToOne('ImageType', required=True)
-    # But an image could be in use in more than one class...???
     class_id = ManyToMany('Class')
 
