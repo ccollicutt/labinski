@@ -46,23 +46,28 @@
           </a>
           <a class="brand" href="/">The Labinski</a>
           <!--
+          %if defined('name'):
           <div class="btn-group pull-right">
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-              <i class="icon-user"></i> Curtis
+              <i class="icon-user"></i> {{name}}
               <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
               <li><a href="#">Profile</a></li>
               <li class="divider"></li>
-              <li><a href="#">Sign Out</a></li>
+              <li><a href="/logout">Sign Out</a></li>
             </ul>
           </div>
-        -->
+        %end
+         -->
           <div class="nav-collapse">
             <ul class="nav">
               <li><a href="/">Home</a></li>
               <li><a href="/about">About</a></li>
               <li><a href="/help">Help</a></li>
+            </ul>
+            <ul class="nav pull-right">
+              <li><a href="/logout">Logout</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
