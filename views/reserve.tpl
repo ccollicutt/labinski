@@ -1,4 +1,5 @@
-%include header    
+%include header  
+%include sidebar  
         <div class="span4">
         <form class="form-horizontal" action="/reservation" method="post">
         <fieldset>

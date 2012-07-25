@@ -1,4 +1,5 @@
 %include header
+%include sidebar
         <div class="span9">
           <table class="table table-striped table-bordered table-condensed">
             <thead>
