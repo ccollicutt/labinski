@@ -45,6 +45,7 @@
             <span class="icon-bar"></span>
           </a>
           <a class="brand" href="/">hackavcl</a>
+          <!--
           <div class="btn-group pull-right">
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
               <i class="icon-user"></i> Curtis
@@ -56,6 +57,7 @@
               <li><a href="#">Sign Out</a></li>
             </ul>
           </div>
+        -->
           <div class="nav-collapse">
             <ul class="nav">
               <li><a href="/">Home</a></li>
