@@ -12,7 +12,8 @@
               </tr>
             </thead>
             <tbody>
-              %for c in classes:
+              %if classes:
+                %for c in classes:
               <tr>
                 <td>{{c.name}}</td>
                 <td>
@@ -26,7 +27,12 @@
                   </div><!-- /btn-group -->
                 </td>
               </tr>
-              %end #for c in classes
+               %end #for c in classes
+              %else:
+                <tr>
+                  <td colspan="2">No classes</td>
+                </tr>
+              %end # if classes
             </tbody>
           </table>
 

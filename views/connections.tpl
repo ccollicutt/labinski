@@ -1,6 +1,7 @@
 %include header
 %include sidebar
         <div class="span9">
+          %if servers:
           <table class="table table-striped table-bordered table-condensed">
             <thead>
               <tr>
@@ -24,6 +25,11 @@
               %end #for server in servers
             </tbody>
           </table>
+          %else: 
+          <div class="alert">
+             You have no running images to connect to
+         </div>
+          %end #if servers
         
           </div><!--/row-->
         </div><!--/span-->

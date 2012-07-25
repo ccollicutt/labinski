@@ -1,6 +1,7 @@
 %include header  
 %include sidebar  
         <div class="span4">
+        %if classes:
         <form class="form-horizontal" action="/reservation" method="post">
         <fieldset>
           <div class="control-group">
@@ -44,6 +45,12 @@
           </div>
         </fieldset>
       </form>
+      %else: 
+      <div class="alert">
+         You are not registered in any classes
+      </div>
+      %end #if classes
+
           </div><!--/row-->
         </div><!--/span-->
 %include footer
