@@ -1,5 +1,4 @@
 #!/usr/bin/python2.6 python
-
 import bottle
 from bottle import route, run, template, get, post, request, static_file, error, Bottle, redirect, abort
 #import scheduler
@@ -10,11 +9,12 @@ from settings import *
 from beaker.middleware import SessionMiddleware
 from os import environ
 
-
 # Init the model database
 init_db(DATABASE)
 
-#app = Bottle.())
+#
+# Beaker middleware
+#
 
 session_opts = {
     'session.type': 'file',
@@ -22,7 +22,12 @@ session_opts = {
     'session.data_dir': '/tmp',
     'session.auto': True
 }
+
 app = SessionMiddleware(bottle.app(), session_opts)
+
+#
+# Functions
+#
 
 def check_login(beaker_session):
   
@@ -30,12 +35,17 @@ def check_login(beaker_session):
     abort(401, "Not logged in in check login")
 
   name = beaker_session['name']
+
   student = Student.query.filter_by(name=unicode(name)).first()
 
   if student:
     return student
 
   return None
+
+#
+# Routes
+# 
 
 @bottle.route('/')
 def slash():
@@ -60,36 +70,36 @@ def slash():
   return template('index', images=Image.query.all(), \
                     classes=classes)
 
-
 @bottle.post('/login')
 def login():
 
-    name = request.forms.name
-    password = request.forms.password
+  name = request.forms.name
+  password = request.forms.password
 
-    try:
-      student = Student.query.filter_by(name=unicode(name)).first()
-    except:
-      abort(401, "No student object in login")
+  try:
+    student = Student.query.filter_by(name=unicode(name)).first()
+  except:
+    abort(401, "No student object in login")
 
-    if student:
-        beaker_session = request.environ['beaker.session']
-        beaker_session['logged_in'] = True
-        beaker_session['name'] = name
-        redirect('/')
-    else:
-        error_msg = 'username or password not valid'
-        return template('login', error_msg=error_msg)
-
-    error_msg = 'Failed to find student'
+  if student:
+    beaker_session = request.environ['beaker.session']
+    beaker_session['logged_in'] = True
+    beaker_session['name'] = name
+    redirect('/')
+  else:
+    error_msg = 'username or password not valid'
     return template('login', error_msg=error_msg)
+
+  error_msg = 'Failed to find student'
+  return template('login', error_msg=error_msg)
 
 @bottle.route('/login')
 def login():
-    return template('login')
+  return template('login')
 
 @bottle.route('/logout')
 def logout():
+
   try:
     beaker_session = request.environ['beaker.session']
     student = check_login(beaker_session)
@@ -121,7 +131,6 @@ def reserve():
 
   return template('reserve', classes=classes)
    
-
 @bottle.route('/reservations')
 def reservations():
   try:
@@ -143,7 +152,6 @@ def reservations():
 
   return template('reservations', reservations=reservations)
   
-
 @bottle.post('/reservation')
 def reservation():
 
@@ -159,9 +167,13 @@ def reservation():
 
   student = check_login(beaker_session)
 
-  reservation_time = request.forms.reservation_time
-  reservation_image_name = request.forms.reservation_image_name
-  reservation_length = request.forms.reservation_length
+  try:
+    reservation_time = request.forms.reservation_time
+    reservation_image_name = request.forms.reservation_image_name
+    reservation_length = request.forms.reservation_length
+  except:
+    abort(401, "Incomplete reservation post data")
+
 
   # is_valid_student(name)
   # is_valid_image(student)
@@ -226,7 +238,6 @@ def show_images():
     abort(401, "No student object")
 
   return template('show_images', classes=classes, name=student.name)
-
 
 #
 # Static 
