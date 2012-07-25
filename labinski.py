@@ -18,7 +18,7 @@ init_db(DATABASE)
 
 session_opts = {
     'session.type': 'file',
-    'session.cookie_expires': 300,
+    'session.cookie_expires': 600,
     'session.data_dir': '/tmp',
     'session.auto': True
 }
@@ -178,28 +178,28 @@ def connections():
   try:
     beaker_session = request.environ['beaker.session']
   except:
-    redirect('/login')
-  
-  if not beaker_session['logged_in']:
-    redirect('/login')
+    abort(401, "No session")
 
   try:
     name = beaker_session['name']
   except:
-    redirect('/login')
+    abort(401, "No session name")
 
-  student = Student.query.filter_by(name=unicode(name)).one()
+  student = check_login(beaker_session)
 
-  reservations = student.reservations
+  if student:
+    reservations = student.reservations
+  else:
+    abort(401, "No student object")
 
   servers = []
 
-  for reservation in student.reservations:
+  for reservation in reservations:
     # reservation name = server id
     try:
       server = nova.servers.find(id=reservation.name)
     except:
-      server= None
+      server = None
     if server:
       servers.append(server)
 
@@ -219,7 +219,11 @@ def show_images():
     abort(401, "No session name")
 
   student = check_login(beaker_session)
-  classes = student.classes
+
+  if student:
+    classes = student.classes
+  else:
+    abort(401, "No student object")
 
   return template('show_images', classes=classes, name=student.name)
 

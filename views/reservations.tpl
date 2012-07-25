@@ -1,6 +1,7 @@
 %include header
 %include sidebar
         <div class="span9">
+          % if reservations:
           <table class="table table-striped table-bordered table-condensed">
             <thead>
               <tr>
@@ -20,6 +21,11 @@
               %end # for r in reservations
             </tbody>
           </table>
+          %else: 
+            <div class="alert">
+               You have no reservations 
+            </div>
+          %end #if classes
         
           </div><!--/row-->
         </div><!--/span-->
