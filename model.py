@@ -22,6 +22,9 @@ class Class(Entity):
     reservations = OneToMany('Reservation', cascade="all,delete-orphan")
 
 class ImageType(Entity):
+    """
+    Eg. Windows, Linux...
+    """
     name = Field(UnicodeText, required=True)
 
 class Flavor(Entity):
