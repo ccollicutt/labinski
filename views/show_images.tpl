@@ -10,6 +10,7 @@
               <tr>
                 <th>Name</th>
                 <th>Type</th>
+                <th>Services</th>
                 <th>Description</th>
                 <th></th>
               </tr>
@@ -19,6 +20,12 @@
                 <tr>
                   <td>{{i.name}}</td>
                   <td>{{i.image_type.name}}</td>
+                  <td>
+                    %for service in i.image_type.services:
+                      {{service.name}}<br />
+                    %end # for service in image_type.services
+                  </td>
+
                   <td>{{i.description}}</td>
                   <td><a class="btn" href="/reserve/{{i.os_image_id}}/{{i.name}}">Reserve</a></td>
                 </tr>
