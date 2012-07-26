@@ -23,7 +23,7 @@ Requirements
 Usage
 -----
 
-* Create a database that supported by SQLALchemy
+* Create a database that is supported by SQLALchemy (ie. postgres/mysql)
 
 ```
 git checkout https://github.com/curtisgithub/labinski
