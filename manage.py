@@ -54,11 +54,11 @@ def add_class(name,image=""):
     Class(name=name,images=[image])
     session.commit()
 
-def add_notification(message,name=None):
+def add_notification(message,status,name=None):
     
     if name:
         student = Student.query.filter_by(name=unicode(name)).first()
-        Notification(student=student,message=message)
+        Notification(student=student,message=message,status=status)
     else:
         Notification(message=message)
 
@@ -90,7 +90,9 @@ def load_test_data():
     curtis.classes.append(education_class)
     session.commit()
 
-    add_notification(name='curtis', message='test notification message')
+    add_notification(name='curtis', message='Some warning message', status="WARNING")
+    add_notification(name='curtis', message='Some error message', status="ERROR")
+
 
     # Add a student without a class
     add_student("test", "test@example.com")

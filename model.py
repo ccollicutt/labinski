@@ -3,6 +3,7 @@
 #XXX Apparently you're not suppsoed to import *?
 #    - http://www.blog.pythonlibrary.org/2010/11/25/sqlalchemy-a-simple-tutorial-for-elixir/
 from elixir import *
+import datetime
 
 class Student(Entity):
     name = Field(UnicodeText, primary_key=True)
@@ -44,3 +45,6 @@ class Image(Entity):
 class Notification(Entity):
     student = ManyToOne('Student')
     message = Field(UnicodeText, required=True)
+    # Should maybe be an entity?
+    status = Field(Unicode(10)) 
+    time = Field(DateTime, default=datetime.datetime.now)   

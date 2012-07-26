@@ -6,14 +6,14 @@ The Labinski is a virtual computer lab that runs on top of [OpenStack](http://ww
 The Name
 --------
 
-Labinski means "lab in sky", ie. a virtual computer lab in the "cloud", where the cloud could be whatever you define it as. :)
+Labinski means "lab in sky", ie. a virtual computer lab in the "cloud."
 
 Requirements
 ------------
 
-* An OpenStack cloud (can be run inside a vm with [devstack](http://www.devstack.org))
-* A database that is supported by SQLAlchemy
-* python
+* An OpenStack cloud (Not as hard to get as one might think: can be run inside a vm with [devstack](http://www.devstack.org))
+* A database that is supported by SQLAlchemy (eg. postgres)
+* python (developed on python 2.6.6 in CentOS 6)
     * Novaclient
     * Elixir, which requires SQLAlchemy
     * Bottle
@@ -30,8 +30,8 @@ git checkout https://github.com/curtisgithub/labinski
 cd labinski
 ```
 
-* Edit the settings.py file
-* Edit the openstackrc.py file
+* Edit the settings.py file, make appropriate changes
+* Edit the openstackrc.py file, make appropriate changes
 
 ```
 python manage.py reset
