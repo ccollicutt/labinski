@@ -50,8 +50,8 @@ def add_flavor(os_id):
     Flavor(os_id=os_id)
     session.commit()
 
-def add_class(name,image=""):
-    Class(name=name,images=[image])
+def add_class(name):
+    Class(name=name)
     session.commit()
 
 def add_notification(message,status,name=None):
@@ -74,21 +74,31 @@ def load_test_data():
     add_image(name="photoshop", os_image_id="647abf63-fd95-42a7-a744-e1885f8d5c16", flavor=f, image_type=windows, description="This image has photoblops R456 for the blogginz")
     
     # Add a math class
-    matlab_image = Image.query.filter_by(name=unicode('matlab')).one()
-    add_class(name="Math 101",image=matlab_image)
+    matlab_image = Image.query.filter_by(name=unicode('matlab')).first()
+    education_image = Image.query.filter_by(name=unicode('photoshop')).first()
 
-    # Add a photoshop class
-    education_image = Image.query.filter_by(name=unicode('photoshop')).one()
-    add_class(name="EDTECH 401", image=education_image)
+    # Add classes
+    add_class(name="Math 101")
+    add_class(name="EDTECH 401")
+    add_class(name="EDMATH 502")
 
-    # Add a student with a class
-    math_class = Class.query.filter_by(name=unicode('Math 101')).one()
-    education_class = Class.query.filter_by(name=unicode('EDTECH 401')).one()
+    # Get classes
+    math_class = Class.query.filter_by(name=unicode('Math 101')).first()
+    education_class = Class.query.filter_by(name=unicode('EDTECH 401')).first()
+    edmath_class = Class.query.filter_by(name=unicode('EDMATH 502')).first()
 
+    # Add images
+    math_class.images.append(matlab_image)
+    education_class.images.append(education_image)
+    edmath_class.images.append(education_image)
+    edmath_class.images.append(matlab_image)
+
+
+    # Add students
     add_student(name="curtis", email="serverascode@gmail.com", _class=math_class)
-    curtis = Student.query.filter_by(name=unicode('curtis')).one()
+    curtis = Student.query.filter_by(name=unicode('curtis')).first()
     curtis.classes.append(education_class)
-    session.commit()
+    curtis.classes.append(edmath_class)
 
     add_notification(name='curtis', message='Some warning message', status="WARNING")
     add_notification(name='curtis', message='Some error message', status="ERROR")
@@ -96,6 +106,9 @@ def load_test_data():
 
     # Add a student without a class
     add_student("test", "test@example.com")
+
+    session.commit()
+
 
 def runserver():
     ''' Starts development server. '''
