@@ -18,13 +18,17 @@ Requirements
     * Elixir, which requires SQLAlchemy
     * Bottle
     * Beaker
+    * Others...see pip_freeze.txt
 
 Usage
 -----
 
 Create a database that supported by SQLALchemy
-    git checkout https://github.com/curtisgithub/labinski
-    cd labinski
+```
+git checkout https://github.com/curtisgithub/labinski
+cd labinski
+```
+
 Edit the settings.py file
 Edit the openstackrc.py file
     python manage.py reset
