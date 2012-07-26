@@ -43,6 +43,20 @@ def check_login(beaker_session):
 
   return None
 
+def get_images(student):
+
+  classes = student.classes
+  images = []
+  for c in classes:
+    for i in c.images:
+      images.append(i)
+
+  # This is magic to remove duplicates
+  # http://docs.python.org/faq/programming.html#how-do-you-remove-duplicates-from-a-list
+  images = list(set(images))
+
+  return images
+
 #
 # Routes
 # 
@@ -126,11 +140,11 @@ def reserve():
   student = check_login(beaker_session)
 
   if student:
-    classes = student.classes
+    images = get_images(student)
   else:
     abort(401, "No student object")
 
-  return template('reserve', classes=classes)
+  return template('reserve', images=images)
    
 @bottle.route('/reservations')
 def reservations():
@@ -234,11 +248,11 @@ def show_images():
   student = check_login(beaker_session)
 
   if student:
-    classes = student.classes
+    images = get_images(student)
   else:
     abort(401, "No student object")
 
-  return template('show_images', classes=classes, name=student.name)
+  return template('show_images', images=images)
 
 @bottle.route('/notifications')
 def notifications():
@@ -259,7 +273,6 @@ def notifications():
     notifications = student.notifications
   
   return template('notifications', notifications=notifications)
-
 
 #
 # Static 

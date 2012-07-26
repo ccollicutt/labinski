@@ -1,7 +1,7 @@
 %include header  
 %include sidebar  
         <div class="span4">
-        %if classes:
+        %if images:
         <form class="form-horizontal" action="/reservation" method="post">
         <fieldset>
           <div class="control-group">
@@ -19,11 +19,9 @@
             <label class="control-label" for="select01">Image</label>
             <div class="controls">
               <select id="select01" name="reservation_image_name">
-                    %for c in classes:
-                      %for i in c.images:
+                      %for i in images:
                     <option>{{i.name}}</option>
-                      %end # for i in c.images
-                    %end # for c in classes
+                      %end # for i in images
               </select>
             </div>
           </div>
@@ -49,7 +47,7 @@
       <div class="alert">
          You are not registered in any classes 
       </div>
-      %end #if classes
+      %end #if images
 
           </div><!--/row-->
         </div><!--/span-->
