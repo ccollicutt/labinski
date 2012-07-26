@@ -1,7 +1,7 @@
 The Labinski
 ============
 
-The Labinski is a virtual computer lab that runs on top of [OpenStack](http://www.openstack.org] using the python novaclient.
+The Labinski is a virtual computer lab that runs on top of [OpenStack](http://www.openstack.org) using the python novaclient.
 
 The Name
 --------
