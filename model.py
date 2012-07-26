@@ -17,7 +17,19 @@ class Reservation(Entity):
     student = ManyToOne('Student')
     class_id = ManyToOne('Class')
     name = Field(UnicodeText, primary_key=True)
+    instance_id = Field(UnicodeText)
 
+    # These are the jobs created by reservation_request
+    stop_instance_job = Field(UnicodeText)
+    start_instance_job = Field(UnicodeText)
+    warn_reservation_ending_job = Field(UnicodeText)
+    check_instance_job = Field(UnicodeText)
+
+    # This is for eventually natting...
+    # forwarded_port(Integer)
+    # If it's always one computer per student, then each reservation
+    # can have a password
+    # password
 
 class Class(Entity):
     name = Field(Unicode(10), primary_key=True)
@@ -25,22 +37,33 @@ class Class(Entity):
     students = ManyToMany('Student')
     reservations = OneToMany('Reservation', cascade="all,delete-orphan")
 
-class ImageType(Entity):
-    """
-    Eg. Windows, Linux...
-    """
-    name = Field(UnicodeText, required=True)
-
-class Flavor(Entity):
-    os_id = Field(Integer, required=True)
-
 class Image(Entity):
     os_image_id = Field(UnicodeText, primary_key=True)
     name = Field(UnicodeText, primary_key=True)
     description = Field(UnicodeText, required=True) 
     flavor = ManyToOne('Flavor', required=True) 
-    image_type = ManyToOne('ImageType', required=True)
     class_id = ManyToMany('Class')
+    image_type = ManyToOne('ImageType', required=True)
+    # each image will have a username that the student will login with
+    #user_name
+
+class ImageType(Entity):
+    """
+    Eg. Windows, Linux...
+    """
+    name = Field(UnicodeText, required=True)
+    # Prob should be an OSType
+    os = Field(UnicodeText, required=True)
+    services = OneToMany('Service')
+
+class Service(Entity):
+    port = Field(Integer, required=True)
+    name = Field(UnicodeText, required=True)
+    description = Field(UnicodeText)
+    image_type = ManyToOne('ImageType')
+
+class Flavor(Entity):
+    os_id = Field(Integer, required=True)
 
 class Notification(Entity):
     student = ManyToOne('Student')

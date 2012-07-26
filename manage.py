@@ -1,6 +1,6 @@
 import sys
 from elixir import *
-from model import Student, Reservation, Class, ImageType, Flavor, Image, Notification
+from model import Student, Reservation, Class, ImageType, Flavor, Image, Notification, Service
 from modelapi import init_db
 from labinski import app
 from settings import *
@@ -29,8 +29,23 @@ def reset():
 def init():
     ''' Creates initial statuses '''
     create_all()
-    ImageType(name='windows')
-    ImageType(name='linux')
+
+    Service(name="ssh", port="22")
+    Service(name="rdp", port="3389")
+    Service(name="http", port="80")
+
+    session.commit()
+
+    rdp_connection = Service.query.filter_by(name=unicode('rdp')).first()
+    ssh_connection = Service.query.filter_by(name=unicode('ssh')).first()
+    http_connection = Service.query.filter_by(name=unicode('http')).first()
+
+    linux_services = []
+    linux_services.append(ssh_connection)
+    linux_services.append(http_connection)
+
+    ImageType(name='Generic Windows',os="Windows", services=[rdp_connection])
+    ImageType(name='Generic Linux', os="Linux", services=linux_services)
     Flavor(os_id=1)
     session.commit()
 
@@ -65,8 +80,11 @@ def add_notification(message,status,name=None):
 def load_test_data():
 
     f = Flavor.query.filter_by(os_id=1).one()
-    windows = ImageType.query.filter_by(name='windows').one()
-    linux = ImageType.query.filter_by(name='linux').one()
+    windows = ImageType.query.filter_by(name=unicode('Generic Windows')).first()
+    linux = ImageType.query.filter_by(name=unicode('Generic Linux')).first()
+
+    if not windows:
+        print "couldn't get windows"
 
     # Using the IMAGE from settings.py for now...
     add_image(name="matlab", os_image_id=IMAGE, flavor=f, image_type=linux, description="This image has matlab version 7.56 which allows for the math usages")
