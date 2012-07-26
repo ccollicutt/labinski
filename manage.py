@@ -1,6 +1,6 @@
 import sys
 from elixir import *
-from model import Student, Reservation, Class, ImageType, Flavor, Image
+from model import Student, Reservation, Class, ImageType, Flavor, Image, Notification
 from modelapi import init_db
 from labinski import app
 from settings import *
@@ -54,6 +54,14 @@ def add_class(name,image=""):
     Class(name=name,images=[image])
     session.commit()
 
+def add_notification(message,name=None):
+    
+    if name:
+        student = Student.query.filter_by(name=unicode(name)).first()
+        Notification(student=student,message=message)
+    else:
+        Notification(message=message)
+
 def load_test_data():
 
     f = Flavor.query.filter_by(os_id=1).one()
@@ -81,6 +89,8 @@ def load_test_data():
     curtis = Student.query.filter_by(name=unicode('curtis')).one()
     curtis.classes.append(education_class)
     session.commit()
+
+    add_notification(name='curtis', message='test notification message')
 
     # Add a student without a class
     add_student("test", "test@example.com")

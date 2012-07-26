@@ -9,11 +9,14 @@ class Student(Entity):
     email = Field(UnicodeText, primary_key=True)
     reservations = OneToMany('Reservation', cascade="all,delete-orphan")
     classes = ManyToMany('Class')
+    notifications = OneToMany('Notification', cascade="all,delete-orphan")
+    is_admin = Field(Boolean, default=False)
 
 class Reservation(Entity):
     student = ManyToOne('Student')
     class_id = ManyToOne('Class')
     name = Field(UnicodeText, primary_key=True)
+
 
 class Class(Entity):
     name = Field(Unicode(10), primary_key=True)
@@ -38,3 +41,6 @@ class Image(Entity):
     image_type = ManyToOne('ImageType', required=True)
     class_id = ManyToMany('Class')
 
+class Notification(Entity):
+    student = ManyToOne('Student')
+    message = Field(UnicodeText, required=True)
