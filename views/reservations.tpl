@@ -8,15 +8,17 @@
                 <th colspan="2">Connections</th>
               </tr>
               <tr>
-                <th>Reservation</th>
-                <th>Other</th>
+                <th>Class</th>
+                <th>Image</th>
+                <th>Image Type</th>
               </tr>
             </thead>
             <tbody>
               %for r in reservations:
               <tr>
-                <td>{{r.name}}</td>
-                <td>...</td>
+                <td>{{r.class_id.name}}</td>
+                <td>{{r.image.name}}</td>
+                <td>{{r.image.image_type.name}}</td>
               <tr>
               %end # for r in reservations
             </tbody>

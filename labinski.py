@@ -224,7 +224,7 @@ def connections():
   for reservation in reservations:
     # reservation name = server id
     try:
-      server = nova.servers.find(id=reservation.name)
+      server = nova.servers.find(id=reservation.instance_id)
     except:
       server = None
     if server:
