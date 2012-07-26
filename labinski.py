@@ -32,7 +32,7 @@ app = SessionMiddleware(bottle.app(), session_opts)
 def check_login(beaker_session):
   
   if not 'logged_in' in beaker_session:
-    abort(401, "Not logged in in check login")
+    abort(401, "Not logged in")
 
   name = beaker_session['name']
 
@@ -245,8 +245,8 @@ def show_images():
 
 @bottle.route('/bootstrap/css/<filename>')
 def css_static(filename):
-    return static_file(filename, root='/vagrant/hackavcl/bootstrap/css')
+    return static_file(filename, root='/vagrant/labinski/bootstrap/css')
 
 @bottle.route('/bootstrap/js/<filename>')
 def js_static(filename):
-    return static_file(filename, root='/vagrant/hackavcl/bootstrap/js')
+    return static_file(filename, root='/vagrant/labinski/bootstrap/js')
