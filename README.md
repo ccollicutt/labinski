@@ -1,17 +1,17 @@
 The Labinski
 ============
 
-The Labinski is a virtual computer lab that runs on top of OpenStack using the python novaclient.
+The Labinski is a virtual computer lab that runs on top of [OpenStack][http://www.openstack.org] using the python novaclient.
 
 The Name
 --------
 
-Labinski means "lab in sky", ie. a virtual computer lab in the "cloud.""
+Labinski means "lab in sky", ie. a virtual computer lab in the "cloud", where the cloud could be whatever you define it as. :)
 
 Requirements
 ------------
 
-* An OpenStack cloud (can be run inside a vm with devstack)
+* An OpenStack cloud (can be run inside a vm with [devstack](http://www.devstack.org))
 * A database that is supported by SQLAlchemy
 * python
     * Novaclient
