@@ -20,7 +20,7 @@ image = Image.query.filter_by(name=unicode('matlab')).first()
 
 start_time = datetime.datetime.now()
 
-reservation = reservation_request(student=student, _class=edmath, image=image, start_time=start_time, reservation_length=4)
+reservation = reservation_request(student=student, _class=edmath, image=image, start_time=start_time, reservation_length=1)
 
 #reservation = True
 
@@ -49,3 +49,8 @@ for r in student.reservations:
 	print "r warn: " + str(r.warn_reservation_ending_job)
 	print "r stop: " + str(r.stop_instance_job)
 	print "r instance: " + str(r.instance_id)
+
+print "Scheduled Jobs"
+print "=============="
+
+sched.print_jobs()

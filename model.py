@@ -14,9 +14,9 @@ class Student(Entity):
     is_admin = Field(Boolean, default=False)
 
 class Reservation(Entity):
-    student = ManyToOne('Student')
-    class_id = ManyToOne('Class')
-    name = Field(UnicodeText, primary_key=True)
+    student = ManyToOne('Student', required=True)
+    class_id = ManyToOne('Class', required=True)
+    image = ManyToOne('Image', required=True)
     instance_id = Field(UnicodeText)
 
     # These are the jobs created by reservation_request
@@ -43,6 +43,7 @@ class Image(Entity):
     description = Field(UnicodeText, required=True) 
     flavor = ManyToOne('Flavor', required=True) 
     class_id = ManyToMany('Class')
+    reservations = OneToMany('Reservation')
     image_type = ManyToOne('ImageType', required=True)
     # each image will have a username that the student will login with
     #user_name
