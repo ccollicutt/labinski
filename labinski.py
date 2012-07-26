@@ -2,8 +2,8 @@
 import bottle
 from bottle import route, run, template, get, post, request, static_file, error, Bottle, redirect, abort
 #import scheduler
-from scheduler import *
-from model import Student, Reservation, Class, Image
+from novaapi import *
+from model import Student, Reservation, Class, Image, Notification
 from modelapi import init_db
 from settings import *
 from beaker.middleware import SessionMiddleware
@@ -53,7 +53,8 @@ def slash():
   try:
     beaker_session = request.environ['beaker.session']
   except:
-    redirect('/login')
+    #redirect('/login')
+    abort(401, "Failed beaker_session in slash")
 
   try:
     name = beaker_session['name']
@@ -239,14 +240,35 @@ def show_images():
 
   return template('show_images', classes=classes, name=student.name)
 
+@bottle.route('/notifications')
+def notifications():
+
+  try:
+    beaker_session = request.environ['beaker.session']
+  except:
+    abort(401, "No session")
+
+  try:
+    name = beaker_session['name']
+  except:
+    abort(401, "No session name")
+
+  student = check_login(beaker_session)
+
+  if student:
+    notifications = student.notifications
+  
+  return template('notifications', notifications=notifications)
+
+
 #
 # Static 
 #
 
 @bottle.route('/bootstrap/css/<filename>')
 def css_static(filename):
-    return static_file(filename, root='/vagrant/labinski/bootstrap/css')
+    return static_file(filename, root=ROOT_DIR + '/bootstrap/css')
 
 @bottle.route('/bootstrap/js/<filename>')
 def js_static(filename):
-    return static_file(filename, root='/vagrant/labinski/bootstrap/js')
+    return static_file(filename, root=ROOT_DIR + '/bootstrap/js')

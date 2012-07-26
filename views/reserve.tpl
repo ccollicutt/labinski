@@ -47,7 +47,7 @@
       </form>
       %else: 
       <div class="alert">
-         You are not registered in any classes
+         You are not registered in any classes 
       </div>
       %end #if classes
 
