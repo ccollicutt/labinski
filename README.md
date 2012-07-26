@@ -23,15 +23,16 @@ Requirements
 Usage
 -----
 
-Create a database that supported by SQLALchemy
+* Create a database that supported by SQLALchemy
 ```
 git checkout https://github.com/curtisgithub/labinski
 cd labinski
 ```
-
-Edit the settings.py file
-Edit the openstackrc.py file
-    python manage.py reset
-    python manage.py loadtestdata
-    python manage.py runserver
-login to localhost:8080
+* Edit the settings.py file
+* Edit the openstackrc.py file
+```
+python manage.py reset
+python manage.py loadtestdata
+python manage.py runserver
+````
+Open a web browswer and login to localhost:8080
