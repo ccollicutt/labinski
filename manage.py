@@ -1,3 +1,6 @@
+#!/usr/bin/python
+
+import syslog
 import sys
 from elixir import *
 from model import Student, Reservation, Class, ImageType, Flavor, Image, Notification, Service

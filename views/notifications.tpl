@@ -10,7 +10,6 @@
               <tr>
                 <th>Status</th>
                 <th>Message</th>
-                <th>Time</th>
               </tr>
             </thead>
             <tbody>
@@ -18,7 +17,6 @@
               <tr>
                 <td>{{notification.status}}</td>
                 <td>{{notification.message}}</td>
-                <td>{{notification.time}}</td>
               <tr>
               %end #for notification in notifications
             </tbody>

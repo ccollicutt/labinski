@@ -5,12 +5,12 @@
           <table class="table table-striped table-bordered table-condensed">
             <thead>
               <tr>
-                <th colspan="2">Connections</th>
+                <th colspan="2">Reservations</th>
               </tr>
               <tr>
                 <th>Instance</th>
                 <th>Type</th>
-                <th>SSH Command</th>
+                <th>Connection Info</th>
                 <th>Password</th>
               </tr>
             </thead>
@@ -26,9 +26,15 @@
             </tbody>
           </table>
           %else: 
-          <div class="alert">
-             You have no running images to connect to
-         </div>
+            %if defined('reservations'):
+                <div class="alert">
+                  You have reservations, but the connections have not started yet, please wait a few seconds and refresh
+                </div>
+            %else:
+             <div class="alert">
+               You have no running images to connect to
+            </div>
+            %end #if reservations
           %end #if servers
         
           </div><!--/row-->
