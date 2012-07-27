@@ -31,7 +31,6 @@ else:
 
 for r in student.reservations:
 	print "1 ======================="
-	print "r name: " + str(r.name)
 	print "r start: " + str(r.start_instance_job)
 	print "r check: " + str(r.check_instance_job)
 	print "r warn: " + str(r.warn_reservation_ending_job)
@@ -43,7 +42,6 @@ sleep(62)
 
 for r in student.reservations:
 	print "2 ======================="
-	print "r name: " + str(r.name)
 	print "r start: " + str(r.start_instance_job)
 	print "r check: " + str(r.check_instance_job)
 	print "r warn: " + str(r.warn_reservation_ending_job)
