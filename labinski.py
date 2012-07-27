@@ -168,7 +168,6 @@ def reservations():
 
   return template('reservations', reservations=reservations)
   
-
 #
 # Make reservation
 # 
@@ -202,24 +201,45 @@ def reservation():
   #XXX FIX ME XXX - only used for testing
   start_time = datetime.datetime.now()
 
+  #
+  # Check class
+  #
   try:
     _class = Class.query.filter_by(name=unicode(class_name)).first()
   except:
-    abort(401, "Could not find class object for reservation")
+    abort(401, "Class query failed")
 
+  if not _class:
+    abort(401, "Class object was not returned")
+
+  #
+  # Check image
+  # 
   try:
     image = Image.query.filter_by(os_image_id=unicode(image_os_image_id)).first()
   except:
-    abort(401, "Could not find image object " + image_os_instance_id + " for reservation")
+    abort(401, "Image query failed")
 
-  #server = create_instance(student,4)
+  if not image:
+    abort(401, "Image object was not returned")
+
+  #
+  # Check reservation_length
+  #
+  try:
+    reservation_length = int(reservation_length)
+  except:
+    abort(401, "Could not convert reservation_length to integer")
+
+  if reservation_length > 8:
+    abort(402, "Reservation length too long")
   
   reservation = reservation_request(student=student, _class=_class, image=image, start_time=start_time, reservation_length=reservation_length)
   
   if reservation:
     redirect('/connections')
   else:
-    abort(401, "Reservation failed in try")
+    abort(401, "Reservation failed")
 
 @bottle.route('/connections')
 def connections():
@@ -252,7 +272,7 @@ def connections():
     if server:
       servers.append(server)
 
-  return template('connections', servers=servers)
+  return template('connections', servers=servers, reservations=reservations)
 
 @bottle.route('/images')
 def show_images():
@@ -308,3 +328,10 @@ def css_static(filename):
 @bottle.route('/bootstrap/js/<filename>')
 def js_static(filename):
     return static_file(filename, root=ROOT_DIR + '/bootstrap/js')
+
+#
+# Error pages
+#
+#@bottle.error(401)
+#def error401(error):
+#    return template('error401', error=error)

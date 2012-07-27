@@ -49,7 +49,8 @@
 
           <div class="form-actions">
             <button type="submit" class="btn btn-primary">Reserve</button>
-            <button class="btn">Cancel</button>
+            <!--<button class="btn">Cancel</button>-->
+            <a class="btn" id="btn-next" href="/">Cancel</a>
           </div>
         </fieldset>
       </form>
@@ -78,9 +79,6 @@
             %end # for c in classes
 
             }
-
-
-
         })
     });
 </script>
