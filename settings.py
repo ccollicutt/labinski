@@ -1,5 +1,5 @@
 # Plain cirros-uec
-IMAGE = "4cf4bfaa-4815-4373-8805-4260538d0f07"
+IMAGE = "0f53de4a-1bb6-43bd-a567-fe181b25cfbe"
 FLAVOR = "1"
 NAME = "generic"
 MAX_INSTANCES = 8
