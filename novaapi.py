@@ -15,12 +15,14 @@ from elixir import *
 
 # Create a nova connection
 nova = client.Client(OS_USERNAME, OS_PASSWORD, OS_TENANT_NAME, OS_AUTH_URL, service_type="compute")
+syslog.syslog(syslog.LOG_ERR, 'novaapi omprted')
+
 
 # Start the scheduler
 sched = Scheduler()
 #sched.add_jobstore(ShelveJobStore('/tmp/hackavcl_jobs'), 'file')
 # http://stackoverflow.com/questions/10104682/advance-python-scheduler-and-sqlalchemyjobstore
-sched.add_jobstore(SQLAlchemyJobStore(url=DATABASE, tablename='jobs'), 'default')
+sched.add_jobstore(SQLAlchemyJobStore(url=DATABASE, tablename='apscheduler_jobs'), 'default')
 
 sched.start()
 
@@ -40,7 +42,7 @@ def reservation_request(student,_class,image,start_time,reservation_length):
 	reservation = Reservation(student=student, \
 		class_id=_class, \
 		image=image)
-
+	
 	if reservation:
 		session.commit()
 	else:
@@ -53,7 +55,6 @@ def reservation_request(student,_class,image,start_time,reservation_length):
 		reservation.delete()
 		session.commit()
 
-	# No resources
 	return False
 
 def start_instance(reservation):
@@ -69,7 +70,7 @@ def start_instance(reservation):
 	else:
 		return False
 
-def check_instance():
+def check_instance(reservation):
 	#stub
 	return True
 
@@ -79,6 +80,7 @@ def warn_reservation_ending():
 
 def stop_instance(reservation):
 
+	instance_id = reservation.instance_id
 	reservation.delete()
 	session.commit()
 
@@ -94,7 +96,7 @@ def add_reservation_jobs(student, reservation, start_time, reservation_length, i
 	check_time = start_time + datetime.timedelta(seconds=120)
 
 	# Use seconds instead of hours for stop time (don't think minutes are an option)
-	reservation_length_in_seconds = 60*60*reservation_length
+	reservation_length_in_seconds = 60*60*int(reservation_length)
 
 	# Kill the instance at start_time + x hours
 	stop_time = start_time + datetime.timedelta(seconds=reservation_length_in_seconds)
@@ -106,47 +108,43 @@ def add_reservation_jobs(student, reservation, start_time, reservation_length, i
 	# Create several jobs and assign job name into reservation object
 	#
 
-	reservation_name = student.name + '_' + reservation.class_id.name + '_' + reservation.image.os_image_id
+	job_name = 'student_' + student.name + '_class_' + reservation.class_id.name + '_reservation_id_' + str(reservation.id)
 
 	# 1) Start the instance
 	start_instance_job = sched.add_date_job(start_instance, start_time, \
-		name=reservation_name + '_start', args=[reservation])
+		name=job_name + '_start', args=[reservation])
 
 	reservation.start_instance_job = start_instance_job.name
 
-	Notification(student=student, message='start_instance_job ' \
-		+ start_instance_job.name \
-		+ ' added for time ' + str(start_time))
+	Notification(student=student, message='Instance for reservation ' + str(reservation.id) + ' will start at ' + str(start_time), status="INFO")
+
 
 	# 2) Make sure the instance is in a good state
 	check_instance_job = sched.add_date_job(check_instance, check_time, \
-		name=reservation_name + '_check', args=[reservation])
+		name=job_name + '_check', args=[reservation])
 
 	reservation.check_instance_job = check_instance_job.name
 
-	Notification(student=student, message='check_instance_job ' \
-	    + check_instance_job.name \
-	    + ' added for time ' +  str(check_time))
+	Notification(student=student, message='Instance for reservation ' + str(reservation.id) + ' will be checked at ' + str(check_time), status="INFO")
+
 
 	# 3) Setup a job to warn the user 5 minutes before the instance is destroyed
 	warn_reservation_ending_job = sched.add_date_job(warn_reservation_ending, \
-		warn_time, name=reservation_name + '_warn', args=[image.os_image_id])
+		warn_time, name=job_name + '_warn', args=[image.os_image_id])
 
 	reservation.warn_reservation_ending_job = warn_reservation_ending_job.name
 
-	Notification(student=student, message='warn_reservation_ending_job ' \
-	    + warn_reservation_ending_job.name \
-		+ ' added for time ' + str(warn_time))
+	Notification(student=student, message='User with reservation ' + str(reservation.id) + ' will be warned at ' + str(warn_time), status="INFO")
+
 
 	# 4) Finally destroy the instance
 	stop_instance_job = sched.add_date_job(stop_instance, stop_time, \
-		name=reservation_name + '_stop', args=[reservation])
+		name=job_name + '_stop', args=[reservation])
 
 	reservation.stop_instance_job = stop_instance_job.name
 
-	Notification(student=student, message='stop_instance_job ' \
-		+ stop_instance_job.name \
-		+ ' added for time ' + str(stop_time))
+	Notification(student=student, message='Instance for reservation ' + str(reservation.id) + ' will stop at ' + str(stop_time), status="INFO")
+
 
 	session.commit()
 

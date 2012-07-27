@@ -8,6 +8,7 @@ from modelapi import init_db
 from settings import *
 from beaker.middleware import SessionMiddleware
 from os import environ
+import datetime
 
 # Init the model database
 init_db(DATABASE)
@@ -140,11 +141,11 @@ def reserve():
   student = check_login(beaker_session)
 
   if student:
-    images = get_images(student)
+    classes = student.classes
   else:
     abort(401, "No student object")
 
-  return template('reserve', images=images)
+  return template('reserve', classes=classes)
    
 @bottle.route('/reservations')
 def reservations():
@@ -167,6 +168,10 @@ def reservations():
 
   return template('reservations', reservations=reservations)
   
+
+#
+# Make reservation
+# 
 @bottle.post('/reservation')
 def reservation():
 
@@ -183,21 +188,38 @@ def reservation():
   student = check_login(beaker_session)
 
   try:
-    reservation_time = request.forms.reservation_time
-    reservation_image_name = request.forms.reservation_image_name
+    start_time = request.forms.start_time
+    image_os_image_id = request.forms.image_os_image_id
+    class_name = request.forms.class_name
     reservation_length = request.forms.reservation_length
   except:
     abort(401, "Incomplete reservation post data")
-
 
   # is_valid_student(name)
   # is_valid_image(student)
   # is_valid_reservation_time(time)
 
-  server = create_instance(student,4)
+  #XXX FIX ME XXX - only used for testing
+  start_time = datetime.datetime.now()
 
-  #return template('reservation', time=reservation_time, image_name=reservation_image_name, length=reservation_length)
-  return redirect('/connections')
+  try:
+    _class = Class.query.filter_by(name=unicode(class_name)).first()
+  except:
+    abort(401, "Could not find class object for reservation")
+
+  try:
+    image = Image.query.filter_by(os_image_id=unicode(image_os_image_id)).first()
+  except:
+    abort(401, "Could not find image object " + image_os_instance_id + " for reservation")
+
+  #server = create_instance(student,4)
+  
+  reservation = reservation_request(student=student, _class=_class, image=image, start_time=start_time, reservation_length=reservation_length)
+  
+  if reservation:
+    redirect('/connections')
+  else:
+    abort(401, "Reservation failed in try")
 
 @bottle.route('/connections')
 def connections():
@@ -271,7 +293,8 @@ def notifications():
 
   if student:
     notifications = student.notifications
-  
+    notifications.reverse()
+
   return template('notifications', notifications=notifications)
 
 #
