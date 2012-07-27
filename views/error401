@@ -1,0 +1,13 @@
+%include header
+
+     <div class="offset4 span4">
+      <div class="alert alert-error">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>401: Oh snap!</strong> {{error}}
+      </div>
+    </div>
+
+
+  </div><!--/span-->
+
+%include footer
