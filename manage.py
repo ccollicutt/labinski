@@ -4,11 +4,12 @@ import syslog
 import sys
 from elixir import *
 from model import Student, Reservation, Class, ImageType, Flavor, Image, Notification, Service
-from modelapi import init_db
 from labinski import app
 from settings import *
 from bottle import run, debug
+from novaapi import *
 
+from modelapi import init_db
 init_db(DATABASE)
 
 import socket
@@ -133,6 +134,7 @@ def load_test_data():
 
 def runserver():
     ''' Starts development server. '''
+
     # Turn on debug
     debug(True)
 
@@ -154,6 +156,20 @@ if __name__ == '__main__':
             runserver()
         if sys.argv[1] == 'loadtestdata':
             load_test_data()
+        if sys.argv[1] == 'listreservations':
+            print "=> Reservations..."
+            for r in Reservation.query.all():
+                print "student_name:" + r.student.name + ";image_id:" + r.image.os_image_id + ";instance_id:" + str(r.instance_id)
+        if sys.argv[1] == 'delreservations':
+            print "=> Deleting all reservations and associated instances"
+            for student in Student.query.all():
+                for reservation in student.reservations:
+                    print "    Deleting reservation with id " + str(reservation.id)
+                    if reservation.instance_id:
+                        print "        Deleting instance with id " + str(reservation.instance_id)
+                        nova.servers.delete(reservation.instance_id)
+                    reservation.delete()
+            session.commit()
     if len(sys.argv) == 4:
     	if sys.argv[1] == 'addstudent':
     	    add_student(sys.argv[2], sys.argv[3])

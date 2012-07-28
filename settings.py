@@ -4,5 +4,6 @@ FLAVOR = "1"
 NAME = "generic"
 MAX_INSTANCES = 8
 DATABASE = "postgresql://hackavcl:hackavclpw@localhost/hackavcl"
+JOBS_DATABASE = "postgresql://ap_jobs:ap_jobs@localhost/ap_jobs"
 ROOT_DIR = "/vagrant/labinski"
 
