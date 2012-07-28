@@ -39,11 +39,10 @@ def reservation_request(student,_class,image,start_time,reservation_length):
 
 	resources = is_resource_available(student,_class,image,start_time,reservation_length)
 
-	reservation = Reservation(student=student, \
-		class_id=_class, \
-		image=image)
-	
+	reservation = Reservation(student=student, class_id=_class, image=image)
+		
 	if reservation:
+		Notification(student=student, message="Reservation " + str(reservation.id) + " created")
 		session.commit()
 	else:
 		return False
@@ -65,10 +64,14 @@ def start_instance(reservation):
 
 	syslog.syslog(syslog.LOG_ERR, 'About to set server id')
 	if server:
-		reservation.instance_id = server.id
 		syslog.syslog(syslog.LOG_ERR, 'Setting server id to ' + server.id)
-		session.flush()
+		syslog.syslog(syslog.LOG_ERR, '1 reservation instance_id is' + str(reservation.instance_id))
+		reservation.instance_id = server.id
+		syslog.syslog(syslog.LOG_ERR, '2 reservation instance_id is' + str(reservation.instance_id))
+
+		#session.flush()
 		session.commit()
+		session.remove()
 		return True
 	else:
 		return False

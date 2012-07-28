@@ -131,6 +131,33 @@ def load_test_data():
 
     session.commit()
 
+def list_reservations():
+    print "=> Reservations..."
+    for r in Reservation.query.all():
+        print "student_name:" + r.student.name + \
+            ";res_id:" + \
+            str(r.id) + \
+            ";image_id:" + \
+            r.image.os_image_id + \
+            ";instance_id:" + \
+            str(r.instance_id)
+
+def del_reservations():
+    print "=> Deleting all reservations and associated instances"
+    for student in Student.query.all():
+        for reservation in student.reservations:
+            print "    Deleting reservation with id " + str(reservation.id)
+            if reservation.instance_id:
+                print "        Deleting instance with id " + str(reservation.instance_id)
+                nova.servers.delete(reservation.instance_id)
+                reservation.delete()
+    session.commit()
+
+def list_notifications():
+    print "=> Listing notifications..."
+    for n in Notification.query.all():
+        print "n_id:" + str(n.id) + ";n_message:" + n.message
+
 
 def runserver():
     ''' Starts development server. '''
@@ -157,19 +184,11 @@ if __name__ == '__main__':
         if sys.argv[1] == 'loadtestdata':
             load_test_data()
         if sys.argv[1] == 'listreservations':
-            print "=> Reservations..."
-            for r in Reservation.query.all():
-                print "student_name:" + r.student.name + ";image_id:" + r.image.os_image_id + ";instance_id:" + str(r.instance_id)
+            list_reservations()
         if sys.argv[1] == 'delreservations':
-            print "=> Deleting all reservations and associated instances"
-            for student in Student.query.all():
-                for reservation in student.reservations:
-                    print "    Deleting reservation with id " + str(reservation.id)
-                    if reservation.instance_id:
-                        print "        Deleting instance with id " + str(reservation.instance_id)
-                        nova.servers.delete(reservation.instance_id)
-                    reservation.delete()
-            session.commit()
+            del_reservations()
+        if sys.argv[1] == 'listnotifications':
+            list_notifications()
     if len(sys.argv) == 4:
     	if sys.argv[1] == 'addstudent':
     	    add_student(sys.argv[2], sys.argv[3])
