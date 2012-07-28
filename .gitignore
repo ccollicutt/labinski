@@ -4,3 +4,4 @@
 *.swn
 userinfo
 .DS*
+#*_sqlalchemy.py
