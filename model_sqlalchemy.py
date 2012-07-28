@@ -18,32 +18,36 @@ classes_users_assoc = Table('classes_users', Base.metadata,
     Column('class_id', Integer, ForeignKey('classes.id')),
     Column('user_id', Integer, ForeignKey('users.id'))
 )
+# classes <=> images
+classes_images_assoc = Table('classes_images', Base.metadata,
+    Column('class_id', Integer, ForeignKey('classes.id')),
+    Column('image_id', Integer, ForeignKey('images.id'))
+)
+# imagetypes <=> services
+imagetypes_services_assoc = Table('imagetypes_service', Base.metadata,
+    Column('imagetype_id', Integer, ForeignKey('imagetypes.id')),
+    Column('service_id', Integer, ForeignKey('services.id'))
+)
 
 class User(Base):
 	__tablename__ = 'users'
 	id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
-	name = Column(String(50))
+	name = Column(String(50), nullable=False)
 	email = Column(String(50))
 	# OneToMany parent -> child, user -> reservations
 	reservations = relationship("Reservation", backref='user', cascade="all, delete, delete-orphan")
 	# ManyToMany
-	#h ttp://docs.sqlalchemy.org/en/rel_0_7/orm/tutorial.html#building-a-many-to-many-relationship
+	# - http://docs.sqlalchemy.org/en/rel_0_7/orm/tutorial.html#building-a-many-to-many-relationship
 	classes = relationship('Class', secondary=classes_users_assoc, backref='users')
-
-
-	#classes =
-	#notifications =
+	notifications = relationship('Notification', backref='user', cascade="all, delete, delete-orphan")
 	is_admin = Column(Boolean, default=False)
 
 class Reservation(Base):
 	__tablename__ = 'reservations'
 	id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
 	user_id = Column(Integer, ForeignKey('users.id'))
-	#class_id = Column(Integer, ForeignKey('class.id'))
-
-	#user = ManyToOne User
-	#class_id = ManyToOne
-	#image = ManyToOne image
+	class_id = Column(Integer, ForeignKey('classes.id'))
+	# OpenStack instance id
 	instance_id = Column(String(50))
 
 	# These are the jobs created by reservation_request
@@ -55,9 +59,41 @@ class Reservation(Base):
 class Class(Base):
 	__tablename__ = 'classes'
 	id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
-	#user_id = Column(Integer, ForeignKey('user.id'))
-	#reservations = relationship("Reservation", backref='user', cascade="all, delete, delete-orphan")
+	name = Column(String(50), nullable=False)
+	reservations = relationship("Reservation", backref='classes', cascade="all, delete, delete-orphan")
+	instance_id = Column(String(50))
 
-	name = Column(String(50))
-	#images = ManyToMany('Image')
-	#reservations = OneToMany('Reservation', cascade="all,delete-orphan")
+class Image(Base):
+	__tablename__= 'images'
+	id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
+	name = Column(String(50), nullable=False)
+	imagetype_id = Column(Integer, ForeignKey('imagetypes.id'))
+	# ManyToMany Images <=> Classes
+	os_image_id = Column(String(50), nullable=False)
+	classes = relationship('Class', secondary=classes_images_assoc, backref='images')
+
+class Notification(Base):
+	__tablename__ = 'notifications'
+	id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
+	user_id = Column(Integer, ForeignKey('users.id'))
+	message = Column(UnicodeText, nullable=False)
+	status = Column(String(10), nullable=False)
+
+class Service(Base):
+	__tablename__ = 'services'
+	id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
+	# Guess someday this might have to be a port range
+	port = Column(Integer)
+	name = Column(String(50), nullable=False)
+	description = Column(UnicodeText, nullable=False)
+
+class ImageType(Base):
+	__tablename__ = 'imagetypes'
+	id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
+	name = Column(String(50), nullable=False)
+	os = Column(String(50), nullable=False)
+	services = relationship('Service', secondary=imagetypes_services_assoc, backref='imagestypes')
+	# An ImageType can have many images associated, but an Image can only have one ImageType
+	images = relationship('Image', backref='imagetypes', cascade="all, delete, delete-orphan")
+
+
