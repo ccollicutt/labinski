@@ -22,7 +22,7 @@ syslog.syslog(syslog.LOG_ERR, 'novaapi omprted')
 sched = Scheduler()
 #sched.add_jobstore(ShelveJobStore('/tmp/hackavcl_jobs'), 'file')
 # http://stackoverflow.com/questions/10104682/advance-python-scheduler-and-sqlalchemyjobstore
-sched.add_jobstore(SQLAlchemyJobStore(url=DATABASE, tablename='apscheduler_jobs'), 'default')
+sched.add_jobstore(SQLAlchemyJobStore(url=JOBS_DATABASE, tablename='apscheduler_jobs'), 'default')
 
 sched.start()
 
@@ -63,8 +63,11 @@ def start_instance(reservation):
     # XXX FIX ME XXX IMAGE should be reservation.image_id etc
 	server = nova.servers.create(flavor=FLAVOR,image=IMAGE,name=NAME)
 
+	syslog.syslog(syslog.LOG_ERR, 'About to set server id')
 	if server:
 		reservation.instance_id = server.id
+		syslog.syslog(syslog.LOG_ERR, 'Setting server id to ' + server.id)
+		session.flush()
 		session.commit()
 		return True
 	else:

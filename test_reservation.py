@@ -39,6 +39,7 @@ else:
 
 print "=> Printing initial job values"
 for r in student.reservations:
+	print "    r id " + str(r.id)
 	print "    r start: " + str(r.start_instance_job)
 	print "    r check: " + str(r.check_instance_job)
 	print "    r warn: " + str(r.warn_reservation_ending_job)
@@ -50,11 +51,12 @@ sleep(62)
 
 print "=> Printing job values after intance creation..."
 for r in student.reservations:
-	print "r start: " + str(r.start_instance_job)
-	print "r check: " + str(r.check_instance_job)
-	print "r warn: " + str(r.warn_reservation_ending_job)
-	print "r stop: " + str(r.stop_instance_job)
-	print "r instance: " + str(r.instance_id)
+	print "    r id " + str(r.id)
+	print "    r start: " + str(r.start_instance_job)
+	print "    r check: " + str(r.check_instance_job)
+	print "    r warn: " + str(r.warn_reservation_ending_job)
+	print "    r stop: " + str(r.stop_instance_job)
+	print "    r instance: " + str(r.instance_id)
 
 print "=> Scheduled Jobs"
 sched.print_jobs()

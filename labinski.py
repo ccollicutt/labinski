@@ -1,6 +1,6 @@
 #!/usr/bin/python2.6 python
 import bottle
-from bottle import route, run, template, get, post, request, static_file, error, Bottle, redirect, abort
+from bottle import route, run, template, get, post, request, static_file, error, Bottle, redirect, abort, debug
 #import scheduler
 from novaapi import *
 from model import Student, Reservation, Class, Image, Notification
@@ -335,3 +335,4 @@ def js_static(filename):
 #@bottle.error(401)
 #def error401(error):
 #    return template('error401', error=error)
+
