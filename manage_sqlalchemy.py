@@ -10,6 +10,10 @@ if __name__ == "__main__":
 	# Create a session
 	session = Session()
 
+	#
+	# Add user
+	#
+
 	user = User(name='curtis', email='curtis@collicutt.net')
 
 	session.add(user)
@@ -23,12 +27,9 @@ if __name__ == "__main__":
 	else:
 		print "no curtis object"
 
-
-	reservation = Reservation(user_id=curtis.id)
-
-	session.add(reservation)
-
-	session.commit()
+	#
+	# Add class
+	# 
 
 	edmath = Class(name="EDMATH 401")
 
@@ -36,9 +37,38 @@ if __name__ == "__main__":
 
 	session.commit()
 
+	#
+	# add reservation
+	#
+
+	reservation = Reservation(user_id=curtis.id, class_id=edmath.id)
+
+	session.add(reservation)
+
+	session.commit()
+
+	#
+	# Give curtis a class and a notification
+	#
+
 	curtis.classes.append(edmath)
 
-	if reservation:
-		print "created a reservation for curtis with id " + str(reservation.id)
-	else:
-		print "could not create reservation"
+	notification = Notification(user_id=curtis.id, message="test message for curtis", status="INFO")
+
+	session.add(notification)
+
+	session.commit()
+
+	#
+	# Add an image
+	#
+
+	IMAGE = "31cf939c-3be9-4fb4-9fb8-09a45b1d98ce"
+
+	image = Image(name='Generic Linux', os_image_id=IMAGE)
+
+	session.add(image)
+
+	image.classes.append(edmath)
+
+	session.commit()
