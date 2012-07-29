@@ -9,7 +9,7 @@ from model import Student, Reservation, Notification
 from apscheduler.scheduler import Scheduler
 #from apscheduler.jobstores.shelve_store import ShelveJobStore
 from apscheduler.jobstores.sqlalchemy_store import SQLAlchemyJobStore
-
+import logging
 import datetime
 from elixir import *
 
@@ -29,45 +29,22 @@ sched.start()
 def is_resource_available(student, _class, image, start_time, reservation_length):
 	# Stub
 	
-	#if len(nova.servers.list()) >= MAX_INSTANCES:
-	#	syslog.syslog(syslog.LOG_ERR, 'Too many instances running')
-	#	return False
-
-	return True
-
-def reservation_request(student,_class,image,start_time,reservation_length):
-
-	resources = is_resource_available(student,_class,image,start_time,reservation_length)
-
-	reservation = Reservation(student=student, class_id=_class, image=image)
-		
-	if reservation:
-		Notification(student=student, message="Reservation " + str(reservation.id) + " created")
-		session.commit()
-	else:
+	if len(nova.servers.list()) >= MAX_INSTANCES:
+		logging.debug('Nova instances is less than MAX_INSTANCES')
 		return False
 
-	if resources:
-		add_reservation_jobs(student, reservation, start_time, reservation_length, image )
-		return True
-	else:
-		reservation.delete()
-		session.commit()
-
-	return False
+	return True
 
 def start_instance(reservation):
 
     # Create a server
     # XXX FIX ME XXX IMAGE should be reservation.image_id etc
-	server = nova.servers.create(flavor=FLAVOR,image=IMAGE,name=NAME)
+	server = nova.servers.create(flavor=reservation.images.flavor.os_id,
+								 image=reservation.images.os_image_id,
+								 name=reservation.images.name)
 
-	syslog.syslog(syslog.LOG_ERR, 'About to set server id')
 	if server:
-		syslog.syslog(syslog.LOG_ERR, 'Setting server id to ' + server.id)
-		syslog.syslog(syslog.LOG_ERR, '1 reservation instance_id is' + str(reservation.instance_id))
 		reservation.instance_id = server.id
-		syslog.syslog(syslog.LOG_ERR, '2 reservation instance_id is' + str(reservation.instance_id))
 
 		#session.flush()
 		session.commit()
@@ -84,16 +61,16 @@ def warn_reservation_ending():
 	# stub
 	return True
 
-def stop_instance(reservation):
+def stop_instance(reservation, db):
 
 	instance_id = reservation.instance_id
-	reservation.delete()
-	session.commit()
+	db.delete(reservation)
+	db.commit()
 
 	# This doesn't seem to report success or failure back...
 	nova.servers.delete(instance_id)
 
-def add_reservation_jobs(student, reservation, start_time, reservation_length, image):
+def add_reservation_jobs(student, reservation, start_time, reservation_length, image, db):
 
 	# Add 30 seconds onto start_time
 	start_time = start_time + datetime.timedelta(seconds=30)
@@ -114,7 +91,11 @@ def add_reservation_jobs(student, reservation, start_time, reservation_length, i
 	# Create several jobs and assign job name into reservation object
 	#
 
-	job_name = 'student_' + student.name + '_class_' + reservation.class_id.name + '_reservation_id_' + str(reservation.id)
+	logging.debug('===========> Student name is ' + str(student.name))
+	logging.debug('===========> Class name is ' + str(reservation.classes.name))
+	logging.debug('===========> Reservation id is ' + str(reservation.id))
+
+	job_name = 'student_' + student.name + '_class_' + reservation.classes.name + '_reservation_id_' + str(reservation.id)
 
 	# 1) Start the instance
 	start_instance_job = sched.add_date_job(start_instance, start_time, \
@@ -144,14 +125,15 @@ def add_reservation_jobs(student, reservation, start_time, reservation_length, i
 
 
 	# 4) Finally destroy the instance
+	#    - Note this job needs the db to delete the reservation as well
 	stop_instance_job = sched.add_date_job(stop_instance, stop_time, \
-		name=job_name + '_stop', args=[reservation])
+		name=job_name + '_stop', args=[reservation, db])
 
 	reservation.stop_instance_job = stop_instance_job.name
 
 	Notification(student=student, message='Instance for reservation ' + str(reservation.id) + ' will stop at ' + str(stop_time), status="INFO")
 
 
-	session.commit()
+	db.commit()
 
 	return True

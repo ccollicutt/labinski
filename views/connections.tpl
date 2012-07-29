@@ -17,7 +17,7 @@
             <tbody>
               %for server in servers:
               <tr>
-                <td><a href="/someurl"><a href="{{server.get_vnc_console('novnc')['console']['url']}}" target="_blank">Matlab</a></td>
+                <td><<a href="{{server.get_vnc_console('novnc')['console']['url']}}" target="_blank">Matlab</a></td>
                 <td>Linux</td>
                 <td>ssh -p 2222 admin@{{server.addresses['private'][0]['addr']}}</td>
                 <td>superpownuclearbuttoncar</td>
@@ -26,7 +26,7 @@
             </tbody>
           </table>
           %else: 
-            %if defined('reservations'):
+            %if defined('reservations') and reservations:
                 <div class="alert">
                   You have reservations, but the connections have not started yet, please wait a few seconds and refresh
                 </div>
