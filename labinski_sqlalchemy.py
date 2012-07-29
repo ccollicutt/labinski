@@ -76,6 +76,7 @@ def slash(db):
   try:
     name = beaker_session['name']
   except:
+    logging.debug('======> slash has no beaker_session name')
     redirect('/login')
 
   student = check_login(beaker_session, db)
@@ -92,6 +93,7 @@ def slash(db):
 @post('/login')
 def login(db):
 
+  logging.debug('======> in login form')
   name = request.forms.name
   password = request.forms.password
 
@@ -100,15 +102,20 @@ def login(db):
   except:
     abort(401, "No student object in login")
 
+  logging.debug('======> past student query')
+
   if student:
     beaker_session = request.environ['beaker.session']
     beaker_session['logged_in'] = True
     beaker_session['name'] = name
+    logging.debug('======> about to redirect to slash')
+
     redirect('/')
   else:
     error_msg = 'username or password not valid'
     return template('login', error_msg=error_msg)
 
+  logging.debug('======> bottom of login func')
   error_msg = 'Failed to find student'
   return template('login', error_msg=error_msg)
 
@@ -169,6 +176,7 @@ def reservations(db):
 
   if student:
     reservations = student.reservations
+    reservations.reverse()
   else:
     abort(401, "No student object")
 

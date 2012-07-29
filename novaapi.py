@@ -5,7 +5,7 @@ from settings import *
 from openstackrc import *
 import time
 import syslog
-from model import Student, Reservation, Notification
+from model_sqlalchemy import *
 from apscheduler.scheduler import Scheduler
 #from apscheduler.jobstores.shelve_store import ShelveJobStore
 from apscheduler.jobstores.sqlalchemy_store import SQLAlchemyJobStore
@@ -15,15 +15,12 @@ from elixir import *
 
 # Create a nova connection
 nova = client.Client(OS_USERNAME, OS_PASSWORD, OS_TENANT_NAME, OS_AUTH_URL, service_type="compute")
-syslog.syslog(syslog.LOG_ERR, 'novaapi omprted')
-
 
 # Start the scheduler
 sched = Scheduler()
 #sched.add_jobstore(ShelveJobStore('/tmp/hackavcl_jobs'), 'file')
 # http://stackoverflow.com/questions/10104682/advance-python-scheduler-and-sqlalchemyjobstore
 sched.add_jobstore(SQLAlchemyJobStore(url=JOBS_DATABASE, tablename='apscheduler_jobs'), 'default')
-
 sched.start()
 
 def is_resource_available(student, _class, image, start_time, reservation_length):
@@ -35,20 +32,23 @@ def is_resource_available(student, _class, image, start_time, reservation_length
 
 	return True
 
-def start_instance(reservation):
+def start_instance(reservation_id):
+
+	db = Session()
+	reservation = db.query(Reservation).filter_by(id=reservation_id).first()
+	# Get the db for this session
+	#db = Session.object_session(reservation)
+
 
     # Create a server
     # XXX FIX ME XXX IMAGE should be reservation.image_id etc
-	server = nova.servers.create(flavor=reservation.images.flavor.os_id,
+	server = nova.servers.create(flavor=reservation.images.flavors.openstack_flavor_id,
 								 image=reservation.images.os_image_id,
 								 name=reservation.images.name)
 
 	if server:
 		reservation.instance_id = server.id
-
-		#session.flush()
-		session.commit()
-		session.remove()
+		db.commit()
 		return True
 	else:
 		return False
@@ -61,11 +61,14 @@ def warn_reservation_ending():
 	# stub
 	return True
 
-def stop_instance(reservation, db):
+def stop_instance(reservation):
 
+	db = Session()
+	
 	instance_id = reservation.instance_id
-	db.delete(reservation)
-	db.commit()
+	# XXX FIX ME XXX
+	#db.delete(reservation)
+	#db.commit()
 
 	# This doesn't seem to report success or failure back...
 	nova.servers.delete(instance_id)
@@ -99,12 +102,13 @@ def add_reservation_jobs(student, reservation, start_time, reservation_length, i
 
 	# 1) Start the instance
 	start_instance_job = sched.add_date_job(start_instance, start_time, \
-		name=job_name + '_start', args=[reservation])
+		name=job_name + '_start', args=[reservation.id])
 
 	reservation.start_instance_job = start_instance_job.name
 
-	Notification(student=student, message='Instance for reservation ' + str(reservation.id) + ' will start at ' + str(start_time), status="INFO")
-
+	notification = Notification(user_id=student.id, message='Instance for reservation ' + str(reservation.id) + ' will start at ' + str(start_time), status="INFO")
+	db.add(notification)
+	db.commit()
 
 	# 2) Make sure the instance is in a good state
 	check_instance_job = sched.add_date_job(check_instance, check_time, \
@@ -112,8 +116,9 @@ def add_reservation_jobs(student, reservation, start_time, reservation_length, i
 
 	reservation.check_instance_job = check_instance_job.name
 
-	Notification(student=student, message='Instance for reservation ' + str(reservation.id) + ' will be checked at ' + str(check_time), status="INFO")
-
+	notification = Notification(user_id=student.id, message='Instance for reservation ' + str(reservation.id) + ' will be checked at ' + str(check_time), status="INFO")
+	db.add(notification)
+	db.commit()
 
 	# 3) Setup a job to warn the user 5 minutes before the instance is destroyed
 	warn_reservation_ending_job = sched.add_date_job(warn_reservation_ending, \
@@ -121,19 +126,19 @@ def add_reservation_jobs(student, reservation, start_time, reservation_length, i
 
 	reservation.warn_reservation_ending_job = warn_reservation_ending_job.name
 
-	Notification(student=student, message='User with reservation ' + str(reservation.id) + ' will be warned at ' + str(warn_time), status="INFO")
-
+	notification = Notification(user_id=student.id, message='User with reservation ' + str(reservation.id) + ' will be warned at ' + str(warn_time), status="INFO")
+	db.add(notification)
+	db.commit()
 
 	# 4) Finally destroy the instance
-	#    - Note this job needs the db to delete the reservation as well
+	#    - XXX FIX ME XXX Note this job needs the db to delete the reservation as well
 	stop_instance_job = sched.add_date_job(stop_instance, stop_time, \
-		name=job_name + '_stop', args=[reservation, db])
+		name=job_name + '_stop', args=[reservation])
 
 	reservation.stop_instance_job = stop_instance_job.name
 
-	Notification(student=student, message='Instance for reservation ' + str(reservation.id) + ' will stop at ' + str(stop_time), status="INFO")
-
-
+	notification = Notification(user_id=student.id, message='Instance for reservation ' + str(reservation.id) + ' will stop at ' + str(stop_time), status="INFO")
+	db.add(notification)
 	db.commit()
 
 	return True
