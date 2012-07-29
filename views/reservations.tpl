@@ -8,6 +8,7 @@
                 <th colspan="2">Reservations</th>
               </tr>
               <tr>
+                <th>ID</th>
                 <th>Class</th>
                 <th>Image</th>
                 <th>Image Type</th>
@@ -17,6 +18,7 @@
             <tbody>
               %for r in reservations:
               <tr>
+                <td>{{r.id}}
                 <td>{{r.classes.name}}</td>
                 <td>{{r.images.name}}</td>
                 <td>{{r.images.imagetypes.name}}</td>

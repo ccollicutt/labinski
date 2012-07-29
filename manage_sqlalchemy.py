@@ -2,7 +2,9 @@
 
 import sys
 from model_sqlalchemy import *
+from novaapi import *
 from bottle import run
+from settings import *
 
 def ipython():
 	from IPython.Shell import IPShellEmbed
@@ -83,7 +85,7 @@ def init():
 	#
 	# Add an image
 	#
-	IMAGE = "31cf939c-3be9-4fb4-9fb8-09a45b1d98ce"
+	IMAGE = "7a372cf5-e42b-40b1-b7af-d9e1aab14a4b"
 	image = Image(name='cirros-0.3.0-x86_64-uec', description='A very small test linux image', os_image_id=IMAGE, imagetype_id=imagetype.id, flavor_id=flavor.id)
 	session.add(image)
 	image.classes.append(edmath)

@@ -13,7 +13,7 @@
               </tr>
             </thead>
             <tbody>
-              %for notification in notifications:
+              %for notification in notifications[1:25]:
               <tr>
                 <td>{{notification.status}}</td>
                 <td>{{notification.message}}</td>
