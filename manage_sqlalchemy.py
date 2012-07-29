@@ -1,7 +1,24 @@
+#!/usr/bin/python
+
+import sys
 from model_sqlalchemy import *
 from bottle import run
 
-if __name__ == "__main__":
+def ipython():
+	from IPython.Shell import IPShellEmbed
+
+	Base.metadata.create_all(engine)
+	session = Session()
+
+	student = session.query(User).filter_by(name='curtis').first()
+	
+
+
+	ipshell = IPShellEmbed()
+
+	ipshell() 
+
+def init():
 
 	# Apparently have to do this here?
 	# http://www.mail-archive.com/sqlalchemy@googlegroups.com/msg27358.html
@@ -75,3 +92,10 @@ if __name__ == "__main__":
 	# Finally
 	session.commit()
 
+if __name__ == "__main__":
+
+    if len(sys.argv) == 2:
+        if sys.argv[1] == 'init':
+            init()
+        if sys.argv[1] == 'ipython':
+        	ipython()

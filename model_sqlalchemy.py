@@ -39,7 +39,7 @@ class User(Base):
 	# ManyToMany
 	# - http://docs.sqlalchemy.org/en/rel_0_7/orm/tutorial.html#building-a-many-to-many-relationship
 	classes = relationship('Class', secondary=classes_users_assoc, backref='users')
-	notifications = relationship('Notification', backref='user', cascade="all, delete, delete-orphan")
+	notifications = relationship('Notification', backref='users', cascade="all, delete, delete-orphan")
 	is_admin = Column(Boolean, default=False)
 
 class Reservation(Base):
@@ -73,6 +73,8 @@ class Image(Base):
 	os_image_id = Column(String(50), nullable=False)
 	flavor_id = Column(Integer, ForeignKey('flavors.id'), nullable=False)
 	classes = relationship('Class', secondary=classes_images_assoc, backref='images')
+	reservations = relationship("Reservation", backref='images', cascade="all, delete, delete-orphan")
+
 
 class Notification(Base):
 	__tablename__ = 'notifications'
