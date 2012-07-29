@@ -44,9 +44,10 @@ class User(Base):
 
 class Reservation(Base):
 	__tablename__ = 'reservations'
-	id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
-	user_id = Column(Integer, ForeignKey('users.id'))
-	class_id = Column(Integer, ForeignKey('classes.id'))
+	id = Column(Integer, Sequence('reservation_id_seq'), primary_key=True)
+	user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+	image_id = Column(Integer, ForeignKey('images.id'), nullable=False)
+	class_id = Column(Integer, ForeignKey('classes.id'), nullable=False)
 	# OpenStack instance id
 	instance_id = Column(String(50))
 
@@ -58,42 +59,54 @@ class Reservation(Base):
 
 class Class(Base):
 	__tablename__ = 'classes'
-	id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
+	id = Column(Integer, Sequence('class_id_seq'), primary_key=True)
 	name = Column(String(50), nullable=False)
 	reservations = relationship("Reservation", backref='classes', cascade="all, delete, delete-orphan")
-	instance_id = Column(String(50))
 
 class Image(Base):
 	__tablename__= 'images'
-	id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
+	id = Column(Integer, Sequence('image_id_seq'), primary_key=True)
 	name = Column(String(50), nullable=False)
-	imagetype_id = Column(Integer, ForeignKey('imagetypes.id'))
-	# ManyToMany Images <=> Classes
+	imagetype_id = Column(Integer, ForeignKey('imagetypes.id'), nullable=False)
+	# ManyToMany Images <=> Classes 
+	# os = OpenStack
 	os_image_id = Column(String(50), nullable=False)
+	flavor_id = Column(Integer, ForeignKey('flavors.id'), nullable=False)
 	classes = relationship('Class', secondary=classes_images_assoc, backref='images')
 
 class Notification(Base):
 	__tablename__ = 'notifications'
-	id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
+	id = Column(Integer, Sequence('notification_id_seq'), primary_key=True)
 	user_id = Column(Integer, ForeignKey('users.id'))
 	message = Column(UnicodeText, nullable=False)
 	status = Column(String(10), nullable=False)
 
 class Service(Base):
 	__tablename__ = 'services'
-	id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
+	id = Column(Integer, Sequence('service_id_seq'), primary_key=True)
 	# Guess someday this might have to be a port range
-	port = Column(Integer)
+	port = Column(Integer, nullable=False)
 	name = Column(String(50), nullable=False)
-	description = Column(UnicodeText, nullable=False)
+	description = Column(UnicodeText)
 
 class ImageType(Base):
 	__tablename__ = 'imagetypes'
-	id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
+	id = Column(Integer, Sequence('imagetypes_id_seq'), primary_key=True)
 	name = Column(String(50), nullable=False)
+	# os = operating system
 	os = Column(String(50), nullable=False)
 	services = relationship('Service', secondary=imagetypes_services_assoc, backref='imagestypes')
 	# An ImageType can have many images associated, but an Image can only have one ImageType
 	images = relationship('Image', backref='imagetypes', cascade="all, delete, delete-orphan")
+
+# OpenStack Flavor
+class Flavor(Base):
+	__tablename__ = 'flavors'
+	id = Column(Integer, Sequence('flavors_id_seq'), primary_key=True)
+	openstack_flavor_id = Column(Integer, nullable=False)
+	images = relationship('Image', backref='flavors', cascade="all, delete, delete-orphan")
+
+# OS
+#class OS
 
 
