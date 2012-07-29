@@ -1,4 +1,5 @@
 from model_sqlalchemy import *
+from bottle import run
 
 if __name__ == "__main__":
 
@@ -13,13 +14,9 @@ if __name__ == "__main__":
 	#
 	# Add user
 	#
-
 	user = User(name='curtis', email='curtis@collicutt.net')
-
 	session.add(user)
-
 	session.commit()
-
 	curtis = session.query(User).filter_by(name='curtis').first()
 
 	if curtis:
@@ -30,45 +27,51 @@ if __name__ == "__main__":
 	#
 	# Add class
 	# 
-
 	edmath = Class(name="EDMATH 401")
-
 	session.add(edmath)
-
-	session.commit()
-
-	#
-	# add reservation
-	#
-
-	reservation = Reservation(user_id=curtis.id, class_id=edmath.id)
-
-	session.add(reservation)
-
 	session.commit()
 
 	#
 	# Give curtis a class and a notification
 	#
-
 	curtis.classes.append(edmath)
-
 	notification = Notification(user_id=curtis.id, message="test message for curtis", status="INFO")
-
 	session.add(notification)
+	session.commit()
 
+	#
+	# Add an imagetype and service
+	#
+	http = Service(name='http', port=80)
+	session.add(http)
+	session.commit()
+	imagetype = ImageType(name='Generic Linux Image Type', services=[http], os='Linux' )
+	session.add(imagetype)
+	session.commit()
+
+	#
+	# Add flavor
+	#
+	flavor = Flavor(openstack_flavor_id=1)
+	session.add(flavor)
 	session.commit()
 
 	#
 	# Add an image
 	#
-
 	IMAGE = "31cf939c-3be9-4fb4-9fb8-09a45b1d98ce"
-
-	image = Image(name='Generic Linux', os_image_id=IMAGE)
-
+	image = Image(name='Generic Linux', os_image_id=IMAGE, imagetype_id=imagetype.id, flavor_id=flavor.id)
 	session.add(image)
-
 	image.classes.append(edmath)
-
 	session.commit()
+
+	#
+	# add reservation
+	#
+	reservation = Reservation(user_id=curtis.id, class_id=edmath.id, image_id=image.id)
+	session.add(reservation)
+	session.commit()
+
+	# Finally
+	session.commit()
+
