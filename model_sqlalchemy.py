@@ -1,11 +1,15 @@
 from sqlalchemy import create_engine, Table, MetaData, Column, Integer, String, Boolean, Sequence, UnicodeText, Unicode, ForeignKey
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
+# Need the db name
+from settings import DATABASE
 
-DATABASE = 'postgresql://modtest:modtest@localhost/modtest'
+#DATABASE = 'postgresql://modtest:modtest@localhost/modtest'
 
 Base = declarative_base()
-engine = create_engine(DATABASE, echo=True)
+#engine = create_engine(DATABASE, echo=True)
+engine = create_engine(DATABASE, echo=False)
+
 
 #Session = sessionmaker(bind=engine)
 # scoped_session is somehow a bit threadproof? Note flush and commit are false...
@@ -67,6 +71,7 @@ class Image(Base):
 	__tablename__= 'images'
 	id = Column(Integer, Sequence('image_id_seq'), primary_key=True)
 	name = Column(String(50), nullable=False)
+	description = Column(UnicodeText, nullable=False)
 	imagetype_id = Column(Integer, ForeignKey('imagetypes.id'), nullable=False)
 	# ManyToMany Images <=> Classes 
 	# os = OpenStack

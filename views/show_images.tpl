@@ -19,11 +19,11 @@
                 %for i in images:
                 <tr>
                   <td>{{i.name}}</td>
-                  <td>{{i.image_type.name}}</td>
+                  <td>{{i.imagetypes.name}}</td>
                   <td>
-                    %for service in i.image_type.services:
+                    %for service in i.imagetypes.services:
                       {{service.name}}<br />
-                    %end # for service in image_type.services
+                    %end # for service in imagetypes.services
                   </td>
 
                   <td>{{i.description}}</td>

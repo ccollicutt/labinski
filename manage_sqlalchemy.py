@@ -11,8 +11,12 @@ def ipython():
 	session = Session()
 
 	student = session.query(User).filter_by(name='curtis').first()
-	
+	openstack_101 = session.query(Class).filter_by(name='OPENSTACK 101').first()
+	cirrus = session.query(Image).filter_by(name='cirros-0.3.0-x86_64-uec').first()
 
+	reservation = Reservation(user_id=student.id, class_id=openstack_101.id, image_id=cirrus.id)
+	session.add(reservation)
+	session.commit()
 
 	ipshell = IPShellEmbed()
 
@@ -44,7 +48,7 @@ def init():
 	#
 	# Add class
 	# 
-	edmath = Class(name="EDMATH 401")
+	edmath = Class(name="OPENSTACK 101")
 	session.add(edmath)
 	session.commit()
 
@@ -59,10 +63,13 @@ def init():
 	#
 	# Add an imagetype and service
 	#
-	http = Service(name='http', port=80)
+	http = Service(name='http', port=80, description='the interewebs')
 	session.add(http)
 	session.commit()
-	imagetype = ImageType(name='Generic Linux Image Type', services=[http], os='Linux' )
+	ssh = Service(name='ssh', port=22, description='the most secure network terminal')
+	session.add(http)
+	session.commit() 
+	imagetype = ImageType(name='Minimal Linux', services=[ssh], os='Linux' )
 	session.add(imagetype)
 	session.commit()
 
@@ -77,7 +84,7 @@ def init():
 	# Add an image
 	#
 	IMAGE = "31cf939c-3be9-4fb4-9fb8-09a45b1d98ce"
-	image = Image(name='Generic Linux', os_image_id=IMAGE, imagetype_id=imagetype.id, flavor_id=flavor.id)
+	image = Image(name='cirros-0.3.0-x86_64-uec', description='A very small test linux image', os_image_id=IMAGE, imagetype_id=imagetype.id, flavor_id=flavor.id)
 	session.add(image)
 	image.classes.append(edmath)
 	session.commit()
@@ -85,9 +92,9 @@ def init():
 	#
 	# add reservation
 	#
-	reservation = Reservation(user_id=curtis.id, class_id=edmath.id, image_id=image.id)
-	session.add(reservation)
-	session.commit()
+	#reservation = Reservation(user_id=curtis.id, class_id=edmath.id, image_id=image.id)
+	#session.add(reservation)
+	#session.commit()
 
 	# Finally
 	session.commit()
