@@ -125,6 +125,48 @@ def logout():
   request.environ['beaker.session'].delete()
   redirect('/login')
 
+@route('/reserve')
+def reserve(db):
+
+  try:
+    beaker_session = request.environ['beaker.session']
+  except:
+    abort(401, "No session")
+
+  try:
+    name = beaker_session['name']
+  except:
+    abort(401, "No session name")
+
+  student = check_login(beaker_session, db)
+
+  if student:
+    classes = student.classes
+  else:
+    abort(401, "No student object")
+
+  return template('reserve', classes=classes)
+
+@route('/reservations')
+def reservations(db):
+  try:
+    beaker_session = request.environ['beaker.session']
+  except:
+    abort(401, "No session")
+
+  try:
+    name = beaker_session['name']
+  except:
+    abort(401, "No session name")
+
+  student = check_login(beaker_session, db)
+
+  if student:
+    reservations = student.reservations
+  else:
+    abort(401, "No student object")
+
+  return template('reservations', reservations=reservations)
 
 #
 # Static 

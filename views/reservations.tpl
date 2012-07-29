@@ -17,9 +17,9 @@
             <tbody>
               %for r in reservations:
               <tr>
-                <td>{{r.class_id.name}}</td>
-                <td>{{r.image.name}}</td>
-                <td>{{r.image.image_type.name}}</td>
+                <td>{{r.classes.name}}</td>
+                <td>{{r.images.name}}</td>
+                <td>{{r.images.imagetypes.name}}</td>
                 <td>To fill in...</td>
               <tr>
               %end # for r in reservations
