@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>hackavcl</title>
+    <title>The Labinski</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -35,7 +35,6 @@
 
     <!-- Le javascript
     ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
     <script src="/bootstrap/js/jquery.js"></script>
     <script src="/bootstrap/js/bootstrap-transition.js"></script>
     <script src="/bootstrap/js/bootstrap-alert.js"></script>
