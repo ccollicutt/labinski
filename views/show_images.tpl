@@ -1,5 +1,5 @@
 %include header name=name
-%include sidebar
+%include sidebar is_admin=is_admin
         <div class="span9">
         %if images:
           <table class="table table-striped table-bordered table-condensed">
@@ -12,7 +12,6 @@
                 <th>Type</th>
                 <th>Services</th>
                 <th>Description</th>
-                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -27,7 +26,6 @@
                   </td>
 
                   <td>{{i.description}}</td>
-                  <td><a class="btn" href="/reserve/{{i.os_image_id}}/{{i.name}}">Reserve</a></td>
                 </tr>
                 %end # for i in images
             </tbody>

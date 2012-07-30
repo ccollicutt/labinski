@@ -10,6 +10,11 @@
               <li><a href="/connections">Show connections</a></li>
               <li><a href="/images">Show images</a></li>
               <li><a href="/notifications">Notifications</a></li>
+              %if is_admin == True:
+                <li class="nav-header">Admin</li>
+                <li><a href="/admin/listjobs">Show jobs</a></li>
+              %end
+
 
             </ul>
           </div><!--/.well -->

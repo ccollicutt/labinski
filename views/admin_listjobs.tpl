@@ -1,31 +1,31 @@
 %include header name=name
 %include sidebar is_admin=is_admin
         <div class="span9">
-          %if notifications:
+          %if jobs:
           <table class="table table-striped table-bordered table-condensed">
             <thead>
               <tr>
                 <th colspan="2">Notifications</th>
               </tr>
               <tr>
-                <th>Status</th>
-                <th>Message</th>
+                <th>ID</th>
+                <th>Name</th>
               </tr>
             </thead>
             <tbody>
-              %for notification in notifications[0:25]:
+              %for job in jobs:
               <tr>
-                <td>{{notification.status}}</td>
-                <td>{{notification.message}}</td>
+                <td>{{job.id}}</td>
+                <td>{{job.name}}</td>
               <tr>
-              %end #for notification in notifications
+              %end #for job in jobs
             </tbody>
           </table>
           %else: 
           <div class="alert">
-             You have no notifications
+             There are no jobs
          </div>
-          %end #if notifications
+          %end #if jobs
         
           </div><!--/row-->
         </div><!--/span-->

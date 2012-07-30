@@ -3,6 +3,7 @@
 #os.chdir(os.path.dirname(__file__))
 
 import sys
+import logging
 sys.path.append('/usr/share/labinski/')
 
 import bottle

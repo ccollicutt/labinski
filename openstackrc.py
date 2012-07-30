@@ -1,4 +1,4 @@
-OS_USERNAME = "admin"
-OS_TENANT_NAME = "admin"
-OS_PASSWORD = "tragedy"
-OS_AUTH_URL = "http://192.168.33.11:5000/v2.0/"
+OS_USERNAME = "vcl"
+OS_TENANT_NAME = "vcl"
+OS_PASSWORD = "sheid6zooRec"
+OS_AUTH_URL = "http://199.116.232.36:5000/v2.0"

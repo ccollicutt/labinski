@@ -1,5 +1,5 @@
 %include header name=name
-%include sidebar
+%include sidebar is_admin=is_admin
         <div class="span9">
           % if reservations:
           <table class="table table-striped table-bordered table-condensed">
@@ -13,6 +13,7 @@
                 <th>Image</th>
                 <th>Image Type</th>
                 <th>Status</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -22,8 +23,18 @@
                 <td>{{r.classes.name}}</td>
                 <td>{{r.images.name}}</td>
                 <td>{{r.images.imagetypes.name}}</td>
-                <td>To fill in...</td>
-              <tr>
+                <td>TBD</td>
+                <td>
+                  <div class="btn-group">
+                    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                      Action
+                      <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+
+                        <li><a href="/delete/reservation/{{r.id}}">Delete</a></li>
+                  </div>
+                </td>
               %end # for r in reservations
             </tbody>
           </table>

@@ -6,4 +6,4 @@ userinfo
 .DS*
 #*_sqlalchemy.py
 build/
-settings.py
+openstackrc.py

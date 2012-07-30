@@ -63,7 +63,7 @@ def slash(db):
   else:
     abort(401, "No student object")
 
-  return template('index', classes=classes, name=student.name)
+  return template('index', classes=classes, name=student.name, is_admin=student.is_admin)
 
 
 
@@ -83,7 +83,7 @@ def reserve(db):
   else:
     abort(401, "No student object")
 
-  return template('reserve', classes=classes, name=student.name)
+  return template('reserve', classes=classes, name=student.name, is_admin=student.is_admin)
 
 #********************************************************************
 @route('/reservations')
@@ -97,7 +97,7 @@ def reservations(db):
   else:
     abort(401, "No student object")
 
-  return template('reservations', reservations=reservations, name=student.name)
+  return template('reservations', reservations=reservations, name=student.name, is_admin=student.is_admin)
 
 #
 # Make reservation
@@ -203,7 +203,7 @@ def connections(db):
     if server:
       servers.append(server)
 
-  return template('connections', servers=servers, reservations=reservations, name=student.name)
+  return template('connections', servers=servers, reservations=reservations, name=student.name, is_admin=student.is_admin)
 
 #********************************************************************
 @route('/images')
@@ -216,7 +216,46 @@ def show_images(db):
   else:
     abort(401, "No student object")
 
-  return template('show_images', images=images, name=student.name)
+  return template('show_images', images=images, name=student.name, is_admin=student.is_admin)
+
+@route ('/delete/reservation/<id:int>')
+def delete_instance(id, db):
+
+  assert isinstance(id, int)
+
+  student = check_login(db)
+
+  reservation = db.query(Reservation).filter_by(id=id).first()
+
+  if not reservation:
+    abort(401, 'Reservation does not exist')
+
+  if not reservation.user.name == student.name:
+    abort(401, "Cannot delete a reservation that is not yours")
+
+  try:
+    server = nova.servers.find(id=reservation.instance_id)
+  except:
+    server = None
+
+  if server:
+    try:
+      nova.servers.delete(reservation.instance_id)
+    except:
+      abort(401, "Could not delete instance")
+
+  try:
+    db.delete(reservation)
+    db.commit()
+  except:
+    abort(401, "Could not delete reservation")
+
+  notification = Notification(user_id=student.id, message="Reservation with id " + str(id) + " was deleted", status="INFO" )
+  db.add(notification)
+  db.commit()  
+
+  redirect('/reservations')
+
 
 #********************************************************************
 @route('/notifications')
@@ -228,7 +267,23 @@ def notifications(db):
     notifications = student.notifications
     notifications.reverse()
 
-  return template('notifications', notifications=notifications, name=student.name)
+  return template('notifications', notifications=notifications, name=student.name, is_admin=student.is_admin)
+
+#
+# ADMIN
+# 
+
+@route('/admin/listjobs')
+def admin_listjobs(db):
+
+  student = check_login(db)
+
+  if not student.is_admin:
+    abort(401, "Not admin")
+
+  jobs = sched.get_jobs()
+
+  return template('admin_listjobs', jobs=jobs, name=student.name, is_admin=student.is_admin)
 
 #
 # Static 
