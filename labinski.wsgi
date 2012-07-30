@@ -3,7 +3,7 @@
 #os.chdir(os.path.dirname(__file__))
 
 import sys
-sys.path.append('/vagrant/labinski/')
+sys.path.append('/usr/share/labinski/')
 
 import bottle
 from labinski_sqlalchemy import app
@@ -11,7 +11,7 @@ from model_sqlalchemy import *
 
 
 # A must for mod_wsgi enironments
-bottle.TEMPLATE_PATH.insert(0,'/vagrant/labinski/views/')
+bottle.TEMPLATE_PATH.insert(0,'/usr/share/labinski/views/')
 
 
 Base.metadata.create_all(engine)

@@ -1,4 +1,4 @@
-%include header
+%include header name=name
 
 <p>
 Time = {{time}}

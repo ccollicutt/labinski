@@ -1,4 +1,4 @@
-%include header 
+%include header name=name
 %include sidebar
         <div class="span9">
           <table class="table table-striped table-bordered table-condensed">

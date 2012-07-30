@@ -4,7 +4,7 @@ FLAVOR = "1"
 NAME = "generic"
 MAX_INSTANCES = 8
 MAX_RESERVATION_LENGTH = 8
-DATABASE = "postgresql://hackavcl:hackavclpw@localhost/hackavcl"
+DATABASE = "postgresql://labinski:labinskipw@localhost/labinski"
 JOBS_DATABASE = "postgresql://ap_jobs:ap_jobs@localhost/ap_jobs"
-ROOT_DIR = "/vagrant/labinski"
+ROOT_DIR = "/usr/share/labinski"
 

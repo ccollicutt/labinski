@@ -1,4 +1,4 @@
-%include header
+%include header name=name
 %include sidebar
         <div class="span9">
           %if notifications:
