@@ -5,5 +5,8 @@
 userinfo
 .DS*
 #*_sqlalchemy.py
+<<<<<<< HEAD
 build/
+=======
+>>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
 openstackrc.py

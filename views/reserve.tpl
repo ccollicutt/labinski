@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 %include header name=name  
 %include sidebar is_admin=is_admin
+=======
+%include header  
+%include sidebar  
+>>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
         <div class="span4">
         %if classes:
         <form class="form-horizontal" action="/reservation" method="post">
@@ -10,9 +15,13 @@
               <select id="select01" name="start_time">
                     <option value="now">Now</option>
                     %for i in range(24):
+<<<<<<< HEAD
                     <!-- Only allow now for...now
                     <option value="{{i}}">{{i}}:00</option>
                     --> 
+=======
+                    <option value="{{i}}">{{i}}:00</option>
+>>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
                     %end
               </select>
             </div>

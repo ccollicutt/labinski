@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 %include header name=name
 %include sidebar is_admin=is_admin
+=======
+%include header 
+%include sidebar
+>>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
         <div class="span9">
           <table class="table table-striped table-bordered table-condensed">
             <thead>
