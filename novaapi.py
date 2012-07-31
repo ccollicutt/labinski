@@ -64,7 +64,7 @@ def warn_reservation_ending():
 def stop_instance(reservation):
 
 	db = Session()
-	
+
 	instance_id = reservation.instance_id
 	# XXX FIX ME XXX
 	#db.delete(reservation)
@@ -93,10 +93,6 @@ def add_reservation_jobs(student, reservation, start_time, reservation_length, i
 	#
 	# Create several jobs and assign job name into reservation object
 	#
-
-	logging.debug('===========> Student name is ' + str(student.name))
-	logging.debug('===========> Class name is ' + str(reservation.classes.name))
-	logging.debug('===========> Reservation id is ' + str(reservation.id))
 
 	job_name = 'student_' + student.name + '_class_' + reservation.classes.name + '_reservation_id_' + str(reservation.id)
 
