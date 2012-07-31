@@ -62,11 +62,7 @@
             <span class="icon-bar"></span>
           </a>
           <a class="brand" href="/">The Labinski</a>
-<<<<<<< HEAD
-          
-=======
-          <!--
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
+
           %if defined('name'):
           <div class="btn-group pull-right">
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
@@ -74,38 +70,25 @@
               <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-<<<<<<< HEAD
               <li><a href="/">Dashboard</a></li>
-=======
-              <li><a href="#">Profile</a></li>
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
+
               <li class="divider"></li>
               <li><a href="/logout">Sign Out</a></li>
             </ul>
           </div>
         %end
-<<<<<<< HEAD
-         
-=======
-         -->
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
+
           <div class="nav-collapse">
             <ul class="nav">
               <li><a href="/">Home</a></li>
               <li><a href="/about">About</a></li>
               <li><a href="/help">Help</a></li>
             </ul>
-<<<<<<< HEAD
             % if not defined('name'):
             <ul class="nav pull-right">
               <li><a href="/logout">Logout</a></li>
             </ul>
             %end
-=======
-            <ul class="nav pull-right">
-              <li><a href="/logout">Logout</a></li>
-            </ul>
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
           </div><!--/.nav-collapse -->
         </div>
       </div>

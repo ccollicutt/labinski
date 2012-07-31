@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 %include header name=name
 %include sidebar is_admin=is_admin
-=======
-%include header
-%include sidebar
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
+
         <div class="span9">
           %if notifications:
           <table class="table table-striped table-bordered table-condensed">
@@ -18,11 +14,8 @@
               </tr>
             </thead>
             <tbody>
-<<<<<<< HEAD
               %for notification in notifications[0:25]:
-=======
-              %for notification in notifications[1:25]:
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
+
               <tr>
                 <td>{{notification.status}}</td>
                 <td>{{notification.message}}</td>

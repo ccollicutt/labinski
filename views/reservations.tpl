@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 %include header name=name
 %include sidebar is_admin=is_admin
-=======
-%include header
-%include sidebar
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
         <div class="span9">
           % if reservations:
           <table class="table table-striped table-bordered table-condensed">
@@ -18,10 +13,8 @@
                 <th>Image</th>
                 <th>Image Type</th>
                 <th>Status</th>
-<<<<<<< HEAD
                 <th></th>
-=======
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
+
               </tr>
             </thead>
             <tbody>
@@ -31,7 +24,6 @@
                 <td>{{r.classes.name}}</td>
                 <td>{{r.images.name}}</td>
                 <td>{{r.images.imagetypes.name}}</td>
-<<<<<<< HEAD
                 <td>TBD</td>
                 <td>
                   <div class="btn-group">
@@ -44,10 +36,7 @@
                         <li><a href="/delete/reservation/{{r.id}}">Delete</a></li>
                   </div>
                 </td>
-=======
-                <td>To fill in...</td>
-              <tr>
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
+
               %end # for r in reservations
             </tbody>
           </table>

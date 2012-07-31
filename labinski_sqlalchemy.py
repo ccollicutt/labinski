@@ -5,10 +5,6 @@ from bottle.ext.sqlalchemy import SQLAlchemyPlugin
 from novaapi import *
 from model_sqlalchemy import *
 #from settings import *
-<<<<<<< HEAD
-=======
-from beaker.middleware import SessionMiddleware
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
 from os import environ
 import datetime
 import logging
@@ -19,52 +15,26 @@ import logging
 #
 bottle.install(SQLAlchemyPlugin(engine, Base.metadata, create=True))
 
-<<<<<<< HEAD
 app = bottle.default_app()
-=======
-#
-# Beaker middleware
-#
-session_opts = {
-    'session.type': 'file',
-    'session.cookie_expires': 600,
-    'session.data_dir': '/tmp',
-    'session.auto': True
-}
 
-app = SessionMiddleware(bottle.app(), session_opts)
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
 
 #
 # Functions
 #
 
-<<<<<<< HEAD
 def check_login(db):
   
   name = request.environ.get('REMOTE_USER')
 
   if not name:
     return False
-=======
-def check_login(beaker_session, db):
-  
-  if not 'logged_in' in beaker_session:
-    abort(401, "Not logged in")
-
-  name = beaker_session['name']
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
 
   student = db.query(User).filter_by(name=unicode(name)).first()
 
   if student:
     return student
 
-<<<<<<< HEAD
   return False
-=======
-  return None
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
 
 def get_images(student):
 
@@ -87,139 +57,42 @@ def get_images(student):
 @route('/')
 def slash(db):
 
-<<<<<<< HEAD
   student = check_login(db)
-=======
-  try:
-    beaker_session = request.environ['beaker.session']
-  except:
-    #redirect('/login')
-    abort(401, "Failed beaker_session in slash")
-
-  try:
-    name = beaker_session['name']
-  except:
-    logging.debug('======> slash has no beaker_session name')
-    redirect('/login')
-
-  student = check_login(beaker_session, db)
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
 
   if student:
     classes = student.classes
   else:
     abort(401, "No student object")
 
-<<<<<<< HEAD
   return template('index', classes=classes, name=student.name, is_admin=student.is_admin)
 
 
-=======
-  return template('index', images=db.query(Image).all(), \
-                    classes=classes)
-
-#********************************************************************
-@post('/login')
-def login(db):
-
-  logging.debug('======> in login form')
-  name = request.forms.name
-  password = request.forms.password
-
-  try:
-    student = db.query(User).filter_by(name=unicode(name)).first()
-  except:
-    abort(401, "No student object in login")
-
-  logging.debug('======> past student query')
-
-  if student:
-    beaker_session = request.environ['beaker.session']
-    beaker_session['logged_in'] = True
-    beaker_session['name'] = name
-    logging.debug('======> about to redirect to slash')
-
-    redirect('/')
-  else:
-    error_msg = 'username or password not valid'
-    return template('login', error_msg=error_msg)
-
-  logging.debug('======> bottom of login func')
-  error_msg = 'Failed to find student'
-  return template('login', error_msg=error_msg)
-
-@route('/login')
-def login():
-  return template('login')
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
 
 #********************************************************************
 @route('/logout')
 def logout():
-<<<<<<< HEAD
  return template('logout')
-=======
 
-  try:
-    beaker_session = request.environ['beaker.session']
-    student = check_login(beaker_session)
-  except:
-    redirect('/login')
-
-  request.environ['beaker.session'].delete()
-  redirect('/login')
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
 
 #********************************************************************
 @route('/reserve')
 def reserve(db):
 
-<<<<<<< HEAD
   student = check_login(db)
-=======
-  try:
-    beaker_session = request.environ['beaker.session']
-  except:
-    abort(401, "No session")
-
-  try:
-    name = beaker_session['name']
-  except:
-    abort(401, "No session name")
-
-  student = check_login(beaker_session, db)
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
 
   if student:
     classes = student.classes
   else:
     abort(401, "No student object")
 
-<<<<<<< HEAD
   return template('reserve', classes=classes, name=student.name, is_admin=student.is_admin)
-=======
-  return template('reserve', classes=classes)
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
+
 
 #********************************************************************
 @route('/reservations')
 def reservations(db):
-<<<<<<< HEAD
 
   student = check_login(db)
-=======
-  try:
-    beaker_session = request.environ['beaker.session']
-  except:
-    abort(401, "No session")
-
-  try:
-    name = beaker_session['name']
-  except:
-    abort(401, "No session name")
-
-  student = check_login(beaker_session, db)
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
 
   if student:
     reservations = student.reservations
@@ -227,11 +100,8 @@ def reservations(db):
   else:
     abort(401, "No student object")
 
-<<<<<<< HEAD
   return template('reservations', reservations=reservations, name=student.name, is_admin=student.is_admin)
-=======
-  return template('reservations', reservations=reservations)
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
+
 
 #
 # Make reservation
@@ -240,21 +110,8 @@ def reservations(db):
 @post('/reservation')
 def reservation(db):
 
-<<<<<<< HEAD
   student = check_login(db)
-=======
-  try:
-    beaker_session = request.environ['beaker.session']
-  except:
-    abort(401, "No session")
 
-  try:
-    name = beaker_session['name']
-  except:
-    abort(401, "No session name")
-
-  student = check_login(beaker_session, db)
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
 
   try:
     start_time = request.forms.start_time
@@ -280,11 +137,8 @@ def reservation(db):
     abort(401, "Class query failed")
 
   if not _class:
-<<<<<<< HEAD
     abort(401, "Class was not selected")
-=======
-    abort(401, "Class object was not returned")
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
+
 
   #
   # Get image
@@ -337,21 +191,7 @@ def reservation(db):
 @route('/connections')
 def connections(db):
 
-<<<<<<< HEAD
   student = check_login(db)
-=======
-  try:
-    beaker_session = request.environ['beaker.session']
-  except:
-    abort(401, "No session")
-
-  try:
-    name = beaker_session['name']
-  except:
-    abort(401, "No session name")
-
-  student = check_login(beaker_session, db)
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
 
   if student:
     reservations = student.reservations
@@ -369,38 +209,20 @@ def connections(db):
     if server:
       servers.append(server)
 
-<<<<<<< HEAD
   return template('connections', servers=servers, reservations=reservations, name=student.name, is_admin=student.is_admin)
-=======
-  return template('connections', servers=servers, reservations=reservations)
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
+
 
 #********************************************************************
 @route('/images')
 def show_images(db):
 
-<<<<<<< HEAD
   student = check_login(db)
-=======
-  try:
-    beaker_session = request.environ['beaker.session']
-  except:
-    abort(401, "No session")
-
-  try:
-    name = beaker_session['name']
-  except:
-    abort(401, "No session name")
-
-  student = check_login(beaker_session, db)
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
 
   if student:
     images = get_images(student)
   else:
     abort(401, "No student object")
 
-<<<<<<< HEAD
   return template('show_images', images=images, name=student.name, is_admin=student.is_admin)
 
 @route ('/delete/reservation/<id:int>')
@@ -447,31 +269,11 @@ def delete_instance(id, db):
 def notifications(db):
 
   student = check_login(db)
-=======
-  return template('show_images', images=images)
-
-#********************************************************************
-@route('/notifications')
-def notifications(db):
-
-  try:
-    beaker_session = request.environ['beaker.session']
-  except:
-    abort(401, "No session")
-
-  try:
-    name = beaker_session['name']
-  except:
-    abort(401, "No session name")
-
-  student = check_login(beaker_session, db)
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
 
   if student:
     notifications = student.notifications
     notifications.reverse()
 
-<<<<<<< HEAD
   return template('notifications', notifications=notifications, name=student.name, is_admin=student.is_admin)
 
 #
@@ -489,19 +291,17 @@ def admin_listjobs(db):
   jobs = sched.get_jobs()
 
   return template('admin_listjobs', jobs=jobs, name=student.name, is_admin=student.is_admin)
-=======
-  return template('notifications', notifications=notifications)
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
+
 
 #
 # Static 
 #
 
-@bottle.route('/bootstrap/css/<filename>')
+@route('/bootstrap/css/<filename>')
 def css_static(filename):
     return static_file(filename, root=ROOT_DIR + '/bootstrap/css')
 
-@bottle.route('/bootstrap/js/<filename>')
+@route('/bootstrap/js/<filename>')
 def js_static(filename):
     return static_file(filename, root=ROOT_DIR + '/bootstrap/js')
 
@@ -521,8 +321,5 @@ if __name__ == '__main__':
     logging.debug('Started')
     
     bottle.debug(True)
-<<<<<<< HEAD
-    run(app, host='10.0.4.5', port=80, reloader=True)
-=======
-    run(app, host='192.168.33.10', reloader=True)
->>>>>>> 67a385edefa25ba40bc5ec8682841d6bdcf6b823
+    run(app, host=IP, port=80, reloader=True)
+
