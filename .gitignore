@@ -5,3 +5,4 @@
 userinfo
 .DS*
 #*_sqlalchemy.py
+openstackrc.py
