@@ -12,14 +12,14 @@ def ipython():
 	Base.metadata.create_all(engine)
 	session = Session()
 
-	student = session.query(User).filter_by(name='curtis').first()
-	_class = session.query(Class).filter_by(name='OPENSTACK 101').first()
-	image = session.query(Image).filter_by(name='CentOS 6').first()
+	#student = session.query(User).filter_by(name='curtis').first()
+	#_class = session.query(Class).filter_by(name='OPENSTACK 101').first()
+	#image = session.query(Image).filter_by(name='CentOS 6').first()
 
-	reservation = Reservation(user_id=student.id, class_id=_class.id, image_id=image.id)
+	#reservation = Reservation(user_id=student.id, class_id=_class.id, image_id=image.id)
 
-	session.add(reservation)
-	session.commit()
+	#session.add(reservation)
+	#session.commit()
 
 	ipshell = IPShellEmbed()
 
@@ -91,7 +91,7 @@ def init():
 	#
 	# Add an image
 	#
-	IMAGE = "92f2689c-b0cc-40f5-829d-098190e617ab"
+	IMAGE = "35699e7e-0a1a-401c-b7b3-37233c988a87"
 	image = Image(name='CentOS 6', description='This is CentOS', os_image_id=IMAGE, imagetype_id=imagetype.id, flavor_id=flavor.id)
 	session.add(image)
 	image.classes.append(_class)
@@ -109,8 +109,14 @@ def init():
 
 if __name__ == "__main__":
 
-    if len(sys.argv) == 2:
-        if sys.argv[1] == 'init':
-            init()
-        if sys.argv[1] == 'ipython':
-        	ipython()
+	# Start the scheduler
+	sched = Scheduler()
+	sched.add_jobstore(SQLAlchemyJobStore(url=JOBS_DATABASE, tablename='apscheduler_jobs'), 'default')
+	sched.start()
+
+	if len(sys.argv) == 2:
+		if sys.argv[1] == 'init':
+			init()
+	if sys.argv[1] == 'ipython':
+		ipython()
+		sched.shutdown()

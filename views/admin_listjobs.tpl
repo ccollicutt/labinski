@@ -5,11 +5,12 @@
           <table class="table table-striped table-bordered table-condensed">
             <thead>
               <tr>
-                <th colspan="2">Notifications</th>
+                <th colspan="2">Jobs</th>
               </tr>
               <tr>
                 <th>ID</th>
                 <th>Name</th>
+                <th>Next Run Time</th>
               </tr>
             </thead>
             <tbody>
@@ -17,6 +18,8 @@
               <tr>
                 <td>{{job.id}}</td>
                 <td>{{job.name}}</td>
+                <td>{{job.next_run_time}}</td>
+
               <tr>
               %end #for job in jobs
             </tbody>

@@ -288,7 +288,17 @@ def admin_listjobs(db):
   if not student.is_admin:
     abort(401, "Not admin")
 
+  # Start the scheduler
+  sched = Scheduler()
+  #sched.add_jobstore(ShelveJobStore('/tmp/hackavcl_jobs'), 'file')
+  # http://stackoverflow.com/questions/10104682/advance-python-scheduler-and-sqlalchemyjobstore
+  sched.add_jobstore(SQLAlchemyJobStore(url=JOBS_DATABASE, tablename='apscheduler_jobs'), 'default')
+  sched.start()
+
   jobs = sched.get_jobs()
+  jobs.reverse()
+
+  sched.shutdown()
 
   return template('admin_listjobs', jobs=jobs, name=student.name, is_admin=student.is_admin)
 
