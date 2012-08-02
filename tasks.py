@@ -1,15 +1,13 @@
 from celery import Celery
-
+from novaapi import nova
+from settings import *
+import datetime
+from model import Notification
 
 celery = Celery()
 celery.config_from_object('celeryconfig')
 
-@celery.task
-def add(x, y):
-    return x + y
-
-    def is_resource_available(student, _class, image, start_time, reservation_length):
-	# Stub
+def is_resource_available(student, _class, image, start_time, reservation_length):
 	
 	if len(nova.servers.list()) >= MAX_INSTANCES:
 		logging.debug('Nova instances is less than MAX_INSTANCES')
@@ -40,12 +38,12 @@ def start_instance(reservation_id):
 		return False
 
 @celery.task
-def check_instance(reservation):
+def check_instance(reservation_id):
 	#stub
 	return True
 
 @celery.task
-def warn_reservation_ending():
+def warn_reservation_ending(reservation_id):
 	# stub
 	return True
 
@@ -85,42 +83,28 @@ def add_reservation_jobs(student, reservation, start_time, reservation_length, i
 	# Warn time is stop_time - 5 minutes (or 300 seconds)
 	warn_time = start_time + datetime.timedelta(seconds=reservation_length_in_seconds - 300)
 
-	#
-	# Create several jobs and assign job name into reservation object
-	#
-
-	logging.debug('===========> Student name is ' + str(student.name))
-	logging.debug('===========> Class name is ' + str(reservation.classes.name))
-	logging.debug('===========> Reservation id is ' + str(reservation.id))
-
-
-	job_name = 'student_' + student.name + '_class_' + reservation.classes.name + '_reservation_id_' + str(reservation.id)
-
 	# 1) Start the instance
-	start_instance_job = sched.add_date_job(start_instance, start_time, \
-		name=job_name + '_start', args=[reservation.id])
+	start_instance_job = start_instance.apply_async([reservation.id], eta=start_time)
 
-	reservation.start_instance_job = start_instance_job.name
+	reservation.start_instance_job = start_instance_job.id
 
 	notification = Notification(user_id=student.id, message='Instance for reservation ' + str(reservation.id) + ' will start at ' + str(start_time), status="INFO")
 	db.add(notification)
 	db.commit()
 
 	# 2) Make sure the instance is in a good state
-	check_instance_job = sched.add_date_job(check_instance, check_time, \
-		name=job_name + '_check', args=[reservation])
+	check_instance_job = check_instance.apply_async([reservation.id], eta=check_time)
 
-	reservation.check_instance_job = check_instance_job.name
+	reservation.check_instance_job = check_instance_job.id
 
 	notification = Notification(user_id=student.id, message='Instance for reservation ' + str(reservation.id) + ' will be checked at ' + str(check_time), status="INFO")
 	db.add(notification)
 	db.commit()
 
 	# 3) Setup a job to warn the user 5 minutes before the instance is destroyed
-	warn_reservation_ending_job = sched.add_date_job(warn_reservation_ending, \
-		warn_time, name=job_name + '_warn', args=[image.os_image_id])
+	warn_reservation_ending_job = warn_reservation_ending.apply_async([reservation.id], eta=warn_time)
 
-	reservation.warn_reservation_ending_job = warn_reservation_ending_job.name
+	reservation.warn_reservation_ending_job = warn_reservation_ending_job.id
 
 	notification = Notification(user_id=student.id, message='User with reservation ' + str(reservation.id) + ' will be warned at ' + str(warn_time), status="INFO")
 	db.add(notification)
@@ -128,10 +112,9 @@ def add_reservation_jobs(student, reservation, start_time, reservation_length, i
 
 	# 4) Finally destroy the instance
 	#    - XXX FIX ME XXX Note this job needs the db to delete the reservation as well
-	stop_instance_job = sched.add_date_job(stop_instance, stop_time, \
-		name=job_name + '_stop', args=[reservation])
+	stop_instance_job = stop_instance.apply_async([reservation.id], eta=stop_time)
 
-	reservation.stop_instance_job = stop_instance_job.name
+	reservation.stop_instance_job = stop_instance_job.id
 
 	notification = Notification(user_id=student.id, message='Instance for reservation ' + str(reservation.id) + ' will stop at ' + str(stop_time), status="INFO")
 	db.add(notification)

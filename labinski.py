@@ -1,14 +1,12 @@
 import bottle
 from bottle import route, run, template, get, post, request, static_file, error, Bottle, redirect, abort, debug
 from bottle.ext.sqlalchemy import SQLAlchemyPlugin
-#import scheduler
 from novaapi import *
-from model_sqlalchemy import *
-#from settings import *
+from model import *
 from os import environ
 import datetime
 import logging
-
+from tasks import is_resource_available, add_reservation_jobs
 
 #
 # Bottle sqlalchemy
@@ -126,7 +124,7 @@ def reservation(db):
   # is_valid_reservation_time(time)
 
   #XXX FIX ME XXX - only used for testing
-  start_time = datetime.datetime.now()
+  start_time = datetime.datetime.utcnow()
 
   #
   # Get class
