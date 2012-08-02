@@ -1,198 +1,122 @@
 #!/usr/bin/python
 
-import syslog
 import sys
-from elixir import *
-from model import Student, Reservation, Class, ImageType, Flavor, Image, Notification, Service
-from labinski import app
-from settings import *
-from bottle import run, debug
+from model_sqlalchemy import *
 from novaapi import *
+from bottle import run
+from settings import *
 
-from modelapi import init_db
-init_db(DATABASE)
+def ipython():
+	from IPython.Shell import IPShellEmbed
 
-import socket
-import fcntl
-import struct
+	Base.metadata.create_all(engine)
+	session = Session()
 
-def get_ip_address(ifname):
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    return socket.inet_ntoa(fcntl.ioctl(
-        s.fileno(),
-        0x8915,  # SIOCGIFADDR
-        struct.pack('256s', ifname[:15])
-    )[20:24])
+	#student = session.query(User).filter_by(name='curtis').first()
+	#_class = session.query(Class).filter_by(name='OPENSTACK 101').first()
+	#image = session.query(Image).filter_by(name='CentOS 6').first()
 
-def reset():
-    ''' Reset database and recreates tables. '''
-    #cleanup_all(drop_tables=True)
-    drop_all()
-    init()
+	#reservation = Reservation(user_id=student.id, class_id=_class.id, image_id=image.id)
+
+	#session.add(reservation)
+	#session.commit()
+
+	ipshell = IPShellEmbed()
+
+	ipshell() 
 
 def init():
-    ''' Creates initial statuses '''
-    create_all()
 
-    Service(name="ssh", port="22")
-    Service(name="rdp", port="3389")
-    Service(name="http", port="80")
+	# Apparently have to do this here?
+	# http://www.mail-archive.com/sqlalchemy@googlegroups.com/msg27358.html
+	Base.metadata.drop_all(engine)
+	Base.metadata.create_all(engine)
 
-    session.commit()
+	# Create a session
+	session = Session()
 
-    rdp_connection = Service.query.filter_by(name=unicode('rdp')).first()
-    ssh_connection = Service.query.filter_by(name=unicode('ssh')).first()
-    http_connection = Service.query.filter_by(name=unicode('http')).first()
+	#
+	# Add user
+	#
 
-    linux_services = []
-    linux_services.append(ssh_connection)
-    linux_services.append(http_connection)
+	users = ['curtis', 'barton']
 
-    ImageType(name='Generic Windows',os="Windows", services=[rdp_connection])
-    ImageType(name='Generic Linux', os="Linux", services=linux_services)
-    Flavor(os_id=1)
-    session.commit()
-
-def add_student(name,email,_class=None):
-    if not _class:
-        Student(name=name, email=email)
-    else:
-        Student(name=name, email=email, classes=[_class])
-
-    session.commit()
-
-def add_image(name,os_image_id, flavor,image_type,description):
-    Image(name=name, os_image_id=os_image_id, flavor=flavor,image_type=image_type,description=description)
-    session.commit()
-
-def add_flavor(os_id):
-    Flavor(os_id=os_id)
-    session.commit()
-
-def add_class(name):
-    Class(name=name)
-    session.commit()
-
-def add_notification(message,status,name=None):
-    
-    if name:
-        student = Student.query.filter_by(name=unicode(name)).first()
-        Notification(student=student,message=message,status=status)
-    else:
-        Notification(message=message)
-
-def load_test_data():
-
-    f = Flavor.query.filter_by(os_id=1).one()
-    windows = ImageType.query.filter_by(name=unicode('Generic Windows')).first()
-    linux = ImageType.query.filter_by(name=unicode('Generic Linux')).first()
-
-    if not windows:
-        print "couldn't get windows"
-
-    # Using the IMAGE from settings.py for now...
-    add_image(name="matlab", os_image_id=IMAGE, flavor=f, image_type=linux, description="This image has matlab version 7.56 which allows for the math usages")
-    # Image cirros-0.3.0-x86_64-uec-ramdisk
-    add_image(name="photoshop", os_image_id="647abf63-fd95-42a7-a744-e1885f8d5c16", flavor=f, image_type=windows, description="This image has photoblops R456 for the blogginz")
-    
-    # Add a math class
-    matlab_image = Image.query.filter_by(name=unicode('matlab')).first()
-    education_image = Image.query.filter_by(name=unicode('photoshop')).first()
-
-    # Add classes
-    add_class(name="Math 101")
-    add_class(name="EDTECH 401")
-    add_class(name="EDMATH 502")
-
-    # Get classes
-    math_class = Class.query.filter_by(name=unicode('Math 101')).first()
-    education_class = Class.query.filter_by(name=unicode('EDTECH 401')).first()
-    edmath_class = Class.query.filter_by(name=unicode('EDMATH 502')).first()
-
-    # Add images
-    math_class.images.append(matlab_image)
-    education_class.images.append(education_image)
-    edmath_class.images.append(education_image)
-    edmath_class.images.append(matlab_image)
+	for u in users:
+		user = User(name=u, email=u + '@doesntexist.com')
+		session.add(user)
+		session.commit()
 
 
-    # Add students
-    add_student(name="curtis", email="serverascode@gmail.com", _class=math_class)
-    curtis = Student.query.filter_by(name=unicode('curtis')).first()
-    curtis.classes.append(education_class)
-    curtis.classes.append(edmath_class)
 
-    add_notification(name='curtis', message='Some warning message', status="WARNING")
-    add_notification(name='curtis', message='Some error message', status="ERROR")
+	#
+	# Add class
+	# 
+	_class = Class(name="OPENSTACK 101")
+	session.add(_class)
 
+	session.commit()
 
-    # Add a student without a class
-    add_student("test", "test@example.com")
-
-    session.commit()
-
-def list_reservations():
-    print "=> Reservations..."
-    for r in Reservation.query.all():
-        print "student_name:" + r.student.name + \
-            ";res_id:" + \
-            str(r.id) + \
-            ";image_id:" + \
-            r.image.os_image_id + \
-            ";instance_id:" + \
-            str(r.instance_id)
-
-def del_reservations():
-    print "=> Deleting all reservations and associated instances"
-    for student in Student.query.all():
-        for reservation in student.reservations:
-            print "    Deleting reservation with id " + str(reservation.id)
-            if reservation.instance_id:
-                print "        Deleting instance with id " + str(reservation.instance_id)
-                nova.servers.delete(reservation.instance_id)
-                reservation.delete()
-    session.commit()
-
-def list_notifications():
-    print "=> Listing notifications..."
-    for n in Notification.query.all():
-        print "n_id:" + str(n.id) + ";n_message:" + n.message
+	#
+	# Give curtis a class and a notification
+	#
+	for u in users:
+		user = session.query(User).filter_by(name=u).first()
+		user.classes.append(_class)
+		notification = Notification(user_id=user.id, message='test message for ' + user.name, status="INFO")
+		session.add(notification)
+		session.commit()
 
 
-def runserver():
-    ''' Starts development server. '''
+	#
+	# Add an imagetype and service
+	#
+	http = Service(name='http', port=80, description='the interewebs')
+	session.add(http)
+	session.commit()
+	ssh = Service(name='ssh', port=22, description='the most secure network terminal')
+	session.add(http)
+	session.commit() 
+	imagetype = ImageType(name='Centos 6 x86_64', services=[ssh], os='Linux' )
 
-    # Turn on debug
-    debug(True)
+	session.add(imagetype)
+	session.commit()
 
-    # Don't always want to run on local host when using vagrant to port forward
-    eth1_ip = get_ip_address('eth1')
+	#
+	# Add flavor
+	#
+	flavor = Flavor(openstack_flavor_id=1)
+	session.add(flavor)
+	session.commit()
 
-    # Reloader
-    run(app, host=eth1_ip, port=8080, reloader=True)
-    #run(app, host="127.0.0.1", port=8080, reloader=True)
+	#
+	# Add an image
+	#
+	IMAGE = "35699e7e-0a1a-401c-b7b3-37233c988a87"
+	image = Image(name='CentOS 6', description='This is CentOS', os_image_id=IMAGE, imagetype_id=imagetype.id, flavor_id=flavor.id)
+	session.add(image)
+	image.classes.append(_class)
+	session.commit()
 
-# XXX FIX ME - Do proper arguments XXX
-if __name__ == '__main__':
-    if len(sys.argv) == 2:
-        if sys.argv[1] == 'reset':
-            reset()
-        if sys.argv[1] == 'init':
-            init()
-        if sys.argv[1] == 'runserver':
-            runserver()
-        if sys.argv[1] == 'loadtestdata':
-            load_test_data()
-        if sys.argv[1] == 'listreservations':
-            list_reservations()
-        if sys.argv[1] == 'delreservations':
-            del_reservations()
-        if sys.argv[1] == 'listnotifications':
-            list_notifications()
-    if len(sys.argv) == 4:
-    	if sys.argv[1] == 'addstudent':
-    	    add_student(sys.argv[2], sys.argv[3])
-    if len(sys.argv) == 5:
-        if sys.argv[1] == 'addimage':
-            add_image(sys.argv[2], sys.argv[3], sys.argv[4])
+	#
+	# add reservation
+	#
+	#reservation = Reservation(user_id=curtis.id, class_id=edmath.id, image_id=image.id)
+	#session.add(reservation)
+	#session.commit()
 
+	# Finally
+	session.commit()
+
+if __name__ == "__main__":
+
+	# Start the scheduler
+	sched = Scheduler()
+	sched.add_jobstore(SQLAlchemyJobStore(url=JOBS_DATABASE, tablename='apscheduler_jobs'), 'default')
+	sched.start()
+
+	if len(sys.argv) == 2:
+		if sys.argv[1] == 'init':
+			init()
+	if sys.argv[1] == 'ipython':
+		ipython()
+		sched.shutdown()

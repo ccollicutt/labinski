@@ -6,9 +6,7 @@ from openstackrc import *
 import time
 import syslog
 from model_sqlalchemy import *
-from apscheduler.scheduler import Scheduler
-#from apscheduler.jobstores.shelve_store import ShelveJobStore
-from apscheduler.jobstores.sqlalchemy_store import SQLAlchemyJobStore
+
 import logging
 import datetime
 from elixir import *
@@ -16,12 +14,6 @@ from elixir import *
 # Create a nova connection
 nova = client.Client(OS_USERNAME, OS_PASSWORD, OS_TENANT_NAME, OS_AUTH_URL, service_type="compute")
 
-# Start the scheduler
-sched = Scheduler()
-#sched.add_jobstore(ShelveJobStore('/tmp/hackavcl_jobs'), 'file')
-# http://stackoverflow.com/questions/10104682/advance-python-scheduler-and-sqlalchemyjobstore
-sched.add_jobstore(SQLAlchemyJobStore(url=JOBS_DATABASE, tablename='apscheduler_jobs'), 'default')
-sched.start()
 
 def is_resource_available(student, _class, image, start_time, reservation_length):
 	# Stub

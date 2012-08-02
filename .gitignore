@@ -7,4 +7,3 @@ userinfo
 #*_sqlalchemy.py
 build/
 openstackrc.py
-settings.py

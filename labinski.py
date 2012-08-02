@@ -1,48 +1,40 @@
-#!/usr/bin/python2.6 python
 import bottle
 from bottle import route, run, template, get, post, request, static_file, error, Bottle, redirect, abort, debug
+from bottle.ext.sqlalchemy import SQLAlchemyPlugin
 #import scheduler
 from novaapi import *
-from model import Student, Reservation, Class, Image, Notification
-from modelapi import init_db
-from settings import *
-from beaker.middleware import SessionMiddleware
+from model_sqlalchemy import *
+#from settings import *
 from os import environ
 import datetime
+import logging
 
-# Init the model database
-init_db(DATABASE)
 
 #
-# Beaker middleware
+# Bottle sqlalchemy
 #
+bottle.install(SQLAlchemyPlugin(engine, Base.metadata, create=True))
 
-session_opts = {
-    'session.type': 'file',
-    'session.cookie_expires': 600,
-    'session.data_dir': '/tmp',
-    'session.auto': True
-}
+app = bottle.default_app()
 
-app = SessionMiddleware(bottle.app(), session_opts)
 
 #
 # Functions
 #
 
-def check_login(beaker_session):
+def check_login(db):
   
-  if not 'logged_in' in beaker_session:
-    abort(401, "Not logged in")
+  name = request.environ.get('REMOTE_USER')
 
-  name = beaker_session['name']
+  if not name:
+    return False
 
-  student = Student.query.filter_by(name=unicode(name)).first()
+  student = db.query(User).filter_by(name=unicode(name)).first()
 
   if student:
     return student
 
-  return None
+  return False
 
 def get_images(student):
 
@@ -61,130 +53,65 @@ def get_images(student):
 #
 # Routes
 # 
+#********************************************************************
+@route('/')
+def slash(db):
 
-@bottle.route('/')
-def slash():
-
-  try:
-    beaker_session = request.environ['beaker.session']
-  except:
-    #redirect('/login')
-    abort(401, "Failed beaker_session in slash")
-
-  try:
-    name = beaker_session['name']
-  except:
-    redirect('/login')
-
-  student = check_login(beaker_session)
+  student = check_login(db)
 
   if student:
     classes = student.classes
   else:
     abort(401, "No student object")
 
-  return template('index', images=Image.query.all(), \
-                    classes=classes)
+  return template('index', classes=classes, name=student.name, is_admin=student.is_admin)
 
-@bottle.post('/login')
-def login():
 
-  name = request.forms.name
-  password = request.forms.password
 
-  try:
-    student = Student.query.filter_by(name=unicode(name)).first()
-  except:
-    abort(401, "No student object in login")
-
-  if student:
-    beaker_session = request.environ['beaker.session']
-    beaker_session['logged_in'] = True
-    beaker_session['name'] = name
-    redirect('/')
-  else:
-    error_msg = 'username or password not valid'
-    return template('login', error_msg=error_msg)
-
-  error_msg = 'Failed to find student'
-  return template('login', error_msg=error_msg)
-
-@bottle.route('/login')
-def login():
-  return template('login')
-
-@bottle.route('/logout')
+#********************************************************************
+@route('/logout')
 def logout():
+ return template('logout')
 
-  try:
-    beaker_session = request.environ['beaker.session']
-    student = check_login(beaker_session)
-  except:
-    redirect('/login')
 
-  request.environ['beaker.session'].delete()
-  redirect('/login')
+#********************************************************************
+@route('/reserve')
+def reserve(db):
 
-@bottle.route('/reserve')
-def reserve():
-
-  try:
-    beaker_session = request.environ['beaker.session']
-  except:
-    abort(401, "No session")
-
-  try:
-    name = beaker_session['name']
-  except:
-    abort(401, "No session name")
-
-  student = check_login(beaker_session)
+  student = check_login(db)
 
   if student:
     classes = student.classes
   else:
     abort(401, "No student object")
 
-  return template('reserve', classes=classes)
-   
-@bottle.route('/reservations')
-def reservations():
-  try:
-    beaker_session = request.environ['beaker.session']
-  except:
-    abort(401, "No session")
+  return template('reserve', classes=classes, name=student.name, is_admin=student.is_admin)
 
-  try:
-    name = beaker_session['name']
-  except:
-    abort(401, "No session name")
 
-  student = check_login(beaker_session)
+#********************************************************************
+@route('/reservations')
+def reservations(db):
+
+  student = check_login(db)
 
   if student:
     reservations = student.reservations
+    reservations.reverse()
   else:
     abort(401, "No student object")
 
-  return template('reservations', reservations=reservations)
-  
+  return template('reservations', reservations=reservations, name=student.name, is_admin=student.is_admin)
+
+
 #
 # Make reservation
 # 
-@bottle.post('/reservation')
-def reservation():
+#********************************************************************
+@post('/reservation')
+def reservation(db):
 
-  try:
-    beaker_session = request.environ['beaker.session']
-  except:
-    abort(401, "No session")
+  student = check_login(db)
 
-  try:
-    name = beaker_session['name']
-  except:
-    abort(401, "No session name")
-
-  student = check_login(beaker_session)
 
   try:
     start_time = request.forms.start_time
@@ -202,21 +129,22 @@ def reservation():
   start_time = datetime.datetime.now()
 
   #
-  # Check class
+  # Get class
   #
   try:
-    _class = Class.query.filter_by(name=unicode(class_name)).first()
+    _class = db.query(Class).filter_by(name=unicode(class_name)).first()
   except:
     abort(401, "Class query failed")
 
   if not _class:
-    abort(401, "Class object was not returned")
+    abort(401, "Class was not selected")
+
 
   #
-  # Check image
+  # Get image
   # 
   try:
-    image = Image.query.filter_by(os_image_id=unicode(image_os_image_id)).first()
+    image = db.query(Image).filter_by(os_image_id=unicode(image_os_image_id)).first()
   except:
     abort(401, "Image query failed")
 
@@ -233,28 +161,37 @@ def reservation():
 
   if reservation_length > 8:
     abort(402, "Reservation length too long")
-  
-  reservation = reservation_request(student=student, _class=_class, image=image, start_time=start_time, reservation_length=reservation_length)
-  
-  if reservation:
-    redirect('/connections')
+
+  logging.debug('****** About to create reservation ***********')
+  reservation = Reservation(user_id=student.id, class_id=_class.id, image_id=image.id)
+  db.add(reservation)
+  db.commit()
+
+
+  resources = is_resource_available(student=student, 
+									_class=_class, 
+									image=image, 
+									start_time=start_time, 
+									reservation_length=reservation_length)
+
+  if resources:
+	add_reservation_jobs(student, reservation, start_time, reservation_length, image, db)
   else:
-    abort(401, "Reservation failed")
+  	db.delete(reservation)
+  	db.commit()
+	abort(401, "No resources for that time")
 
-@bottle.route('/connections')
-def connections():
+ 
+  
+  db.commit()
 
-  try:
-    beaker_session = request.environ['beaker.session']
-  except:
-    abort(401, "No session")
+  redirect('/reservations')
 
-  try:
-    name = beaker_session['name']
-  except:
-    abort(401, "No session name")
+#********************************************************************
+@route('/connections')
+def connections(db):
 
-  student = check_login(beaker_session)
+  student = check_login(db)
 
   if student:
     reservations = student.reservations
@@ -272,60 +209,109 @@ def connections():
     if server:
       servers.append(server)
 
-  return template('connections', servers=servers, reservations=reservations)
+  return template('connections', servers=servers, reservations=reservations, name=student.name, is_admin=student.is_admin)
 
-@bottle.route('/images')
-def show_images():
 
-  try:
-    beaker_session = request.environ['beaker.session']
-  except:
-    abort(401, "No session")
+#********************************************************************
+@route('/images')
+def show_images(db):
 
-  try:
-    name = beaker_session['name']
-  except:
-    abort(401, "No session name")
-
-  student = check_login(beaker_session)
+  student = check_login(db)
 
   if student:
     images = get_images(student)
   else:
     abort(401, "No student object")
 
-  return template('show_images', images=images)
+  return template('show_images', images=images, name=student.name, is_admin=student.is_admin)
 
-@bottle.route('/notifications')
-def notifications():
+@route ('/delete/reservation/<id:int>')
+def delete_instance(id, db):
+
+  assert isinstance(id, int)
+
+  student = check_login(db)
+
+  reservation = db.query(Reservation).filter_by(id=id).first()
+
+  if not reservation:
+    abort(401, 'Reservation does not exist')
+
+  if not reservation.user.name == student.name:
+    abort(401, "Cannot delete a reservation that is not yours")
 
   try:
-    beaker_session = request.environ['beaker.session']
+    server = nova.servers.find(id=reservation.instance_id)
   except:
-    abort(401, "No session")
+    server = None
+
+  if server:
+    try:
+      nova.servers.delete(reservation.instance_id)
+    except:
+      abort(401, "Could not delete instance")
 
   try:
-    name = beaker_session['name']
+    db.delete(reservation)
+    db.commit()
   except:
-    abort(401, "No session name")
+    abort(401, "Could not delete reservation")
 
-  student = check_login(beaker_session)
+  notification = Notification(user_id=student.id, message="Reservation with id " + str(id) + " was deleted", status="INFO" )
+  db.add(notification)
+  db.commit()  
+
+  redirect('/reservations')
+
+
+#********************************************************************
+@route('/notifications')
+def notifications(db):
+
+  student = check_login(db)
 
   if student:
     notifications = student.notifications
     notifications.reverse()
 
-  return template('notifications', notifications=notifications)
+  return template('notifications', notifications=notifications, name=student.name, is_admin=student.is_admin)
+
+#
+# ADMIN
+# 
+
+@route('/admin/listjobs')
+def admin_listjobs(db):
+
+  student = check_login(db)
+
+  if not student.is_admin:
+    abort(401, "Not admin")
+
+  # Start the scheduler
+  sched = Scheduler()
+  #sched.add_jobstore(ShelveJobStore('/tmp/hackavcl_jobs'), 'file')
+  # http://stackoverflow.com/questions/10104682/advance-python-scheduler-and-sqlalchemyjobstore
+  sched.add_jobstore(SQLAlchemyJobStore(url=JOBS_DATABASE, tablename='apscheduler_jobs'), 'default')
+  sched.start()
+
+  jobs = sched.get_jobs()
+  jobs.reverse()
+
+  sched.shutdown()
+
+  return template('admin_listjobs', jobs=jobs, name=student.name, is_admin=student.is_admin)
+
 
 #
 # Static 
 #
 
-@bottle.route('/bootstrap/css/<filename>')
+@route('/bootstrap/css/<filename>')
 def css_static(filename):
     return static_file(filename, root=ROOT_DIR + '/bootstrap/css')
 
-@bottle.route('/bootstrap/js/<filename>')
+@route('/bootstrap/js/<filename>')
 def js_static(filename):
     return static_file(filename, root=ROOT_DIR + '/bootstrap/js')
 
@@ -335,4 +321,15 @@ def js_static(filename):
 #@bottle.error(401)
 #def error401(error):
 #    return template('error401', error=error)
+
+if __name__ == '__main__':
+	# Apparently have to do this here?
+    # http://www.mail-archive.com/sqlalchemy@googlegroups.com/msg27358.html
+    Base.metadata.create_all(engine)
+
+    logging.basicConfig(level=logging.DEBUG)
+    logging.debug('Started')
+    
+    bottle.debug(True)
+    run(app, host=IP, port=80, reloader=True)
 
