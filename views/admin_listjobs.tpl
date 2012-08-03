@@ -5,21 +5,22 @@
           <table class="table table-striped table-bordered table-condensed">
             <thead>
               <tr>
-                <th colspan="2">Jobs</th>
+                <th colspan="2">Scheduled Jobs</th>
               </tr>
               <tr>
-                <th>ID</th>
+                <th>ETA</th>
                 <th>Name</th>
-                <th>Next Run Time</th>
+                <th>ID</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
               %for job in jobs:
               <tr>
-                <td>{{job.id}}</td>
+                <td>{{job.eta}}
                 <td>{{job.name}}</td>
-                <td>{{job.next_run_time}}</td>
-
+                <td>{{job.id}}</td>
+                <td>{{job.status}}
               <tr>
               %end #for job in jobs
             </tbody>

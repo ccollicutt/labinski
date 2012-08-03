@@ -1,5 +1,6 @@
 from celery import Celery
 from novaapi import nova
+from model import *
 from settings import *
 import datetime
 from model import Notification
@@ -54,9 +55,9 @@ def stop_instance(reservation_id):
 
 	reservation = db.query(Reservation).filter_by(id=reservation_id).first()
 	instance_id = reservation.instance_id
-	# XXX FIX ME XXX
-	#db.delete(reservation)
-	#db.commit()
+
+	db.delete(reservation)
+	db.commit()
 
 	# This doesn't seem to report success or failure back...
 	try:

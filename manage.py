@@ -1,10 +1,16 @@
 #!/usr/bin/python
 
 import sys
-from model_sqlalchemy import *
+from model import *
 from novaapi import *
 from bottle import run
 from settings import *
+
+#from celery import Celery
+#celery = Celery()
+#celery.config_from_object('celeryconfig')
+
+from tasks import *
 
 def ipython():
 	from IPython.Shell import IPShellEmbed
@@ -12,9 +18,9 @@ def ipython():
 	Base.metadata.create_all(engine)
 	session = Session()
 
-	#student = session.query(User).filter_by(name='curtis').first()
-	#_class = session.query(Class).filter_by(name='OPENSTACK 101').first()
-	#image = session.query(Image).filter_by(name='CentOS 6').first()
+	student = session.query(User).filter_by(name='curtis').first()
+	_class = session.query(Class).filter_by(name='OPENSTACK 101').first()
+	image = session.query(Image).filter_by(name='CentOS 6').first()
 
 	#reservation = Reservation(user_id=student.id, class_id=_class.id, image_id=image.id)
 
@@ -109,14 +115,8 @@ def init():
 
 if __name__ == "__main__":
 
-	# Start the scheduler
-	sched = Scheduler()
-	sched.add_jobstore(SQLAlchemyJobStore(url=JOBS_DATABASE, tablename='apscheduler_jobs'), 'default')
-	sched.start()
-
 	if len(sys.argv) == 2:
 		if sys.argv[1] == 'init':
 			init()
 	if sys.argv[1] == 'ipython':
 		ipython()
-		sched.shutdown()

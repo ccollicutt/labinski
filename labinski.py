@@ -6,7 +6,8 @@ from model import *
 from os import environ
 import datetime
 import logging
-from tasks import is_resource_available, add_reservation_jobs
+from tasks import *
+from collections import namedtuple
 
 #
 # Bottle sqlalchemy
@@ -281,22 +282,29 @@ def notifications(db):
 @route('/admin/listjobs')
 def admin_listjobs(db):
 
+  from celery.result import AsyncResult
+
   student = check_login(db)
 
   if not student.is_admin:
     abort(401, "Not admin")
 
-  # Start the scheduler
-  sched = Scheduler()
-  #sched.add_jobstore(ShelveJobStore('/tmp/hackavcl_jobs'), 'file')
-  # http://stackoverflow.com/questions/10104682/advance-python-scheduler-and-sqlalchemyjobstore
-  sched.add_jobstore(SQLAlchemyJobStore(url=JOBS_DATABASE, tablename='apscheduler_jobs'), 'default')
-  sched.start()
+  inspector = celery.control.inspect()
+  scheduled_jobs = inspector.scheduled()
+  scheduled_jobs = scheduled_jobs['localhost.localdomain']
 
-  jobs = sched.get_jobs()
-  jobs.reverse()
+  jobs = []
+  Job = namedtuple('Job', ['eta', 'name', 'id', 'status'])
+  for j in scheduled_jobs:
+    eta = j['eta']
+    name = j['request']['name']
+    id = j['request']['id']
+    result = AsyncResult(id)
+    status = result.status
 
-  sched.shutdown()
+    job = Job(eta, name, id, status)
+    jobs.append(job)
+
 
   return template('admin_listjobs', jobs=jobs, name=student.name, is_admin=student.is_admin)
 
