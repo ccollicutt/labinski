@@ -10,8 +10,14 @@ celery.config_from_object('celeryconfig')
 
 def is_resource_available(student, _class, image, start_time, reservation_length):
 	
+	db = Session()
+
 	if len(nova.servers.list()) >= MAX_INSTANCES:
-		logging.debug('Nova instances is less than MAX_INSTANCES')
+		notification = Notification(user_id=student.id, \
+			message='Too many instances running to start a new reservation', \
+			status="ERROR")
+		db.add(notification)
+		db.commit()
 		return False
 
 	return True

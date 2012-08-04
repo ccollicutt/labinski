@@ -16,7 +16,6 @@ bottle.install(SQLAlchemyPlugin(engine, Base.metadata, create=True))
 
 app = bottle.default_app()
 
-
 #
 # Functions
 #
@@ -282,6 +281,7 @@ def notifications(db):
 @route('/admin/listjobs')
 def admin_listjobs(db):
 
+  # In order to find the status of the job we need to use this
   from celery.result import AsyncResult
 
   student = check_login(db)
@@ -291,6 +291,7 @@ def admin_listjobs(db):
 
   inspector = celery.control.inspect()
   scheduled_jobs = inspector.scheduled()
+  hostname = scheduled_jobs.keys()[0]
   scheduled_jobs = scheduled_jobs['localhost.localdomain']
 
   jobs = []
@@ -320,6 +321,10 @@ def css_static(filename):
 @route('/bootstrap/js/<filename>')
 def js_static(filename):
     return static_file(filename, root=ROOT_DIR + '/bootstrap/js')
+
+@route('/bootstrap/img/<filename>')
+def js_static(filename):
+    return static_file(filename, root=ROOT_DIR + '/bootstrap/img')
 
 #
 # Error pages
