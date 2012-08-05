@@ -19,7 +19,11 @@
               <tr>
                 <td><a href="{{server.console_url}}" target="_blank">{{server.name}}</a></td>
                 <td>Linux</td>
+                %if server.ip != None:
                 <td>ssh -p *someport* admin@{{server.ip}}</td>
+                %else:
+                <td>Connection not instantiated yet</td>
+                %end # if server.ip != None
 
               <tr>
               %end #for server in servers
