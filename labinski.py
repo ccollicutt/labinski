@@ -110,7 +110,6 @@ def reservation(db):
 
   student = check_login(db)
 
-
   try:
     start_time = request.forms.start_time
     image_os_image_id = request.forms.image_os_image_id
@@ -136,7 +135,6 @@ def reservation(db):
 
   if not _class:
     abort(401, "Class was not selected")
-
 
   #
   # Get image
@@ -198,16 +196,35 @@ def connections(db):
 
   servers = []
 
-  for reservation in reservations:
-    # reservation name = server id
+  # Create a namedtuple to store the server info in
+  Server = namedtuple('Server', ['name', 'console_url', 'ip'])
+
+  for r in reservations:
     try:
-      server = nova.servers.find(id=reservation.instance_id)
+      server = nova.servers.find(id=r.instance_id)
     except:
       server = None
-    if server:
-      servers.append(server)
 
-  return template('connections', servers=servers, reservations=reservations, name=student.name, is_admin=student.is_admin)
+    if server:
+      # Take the first network to get the IP from
+      network = server.addresses.keys()[0]
+      try:
+        # First IP from first network
+        # Sometimes the instance will exist but not have an IP yet
+        ip = server.addresses[network][0]['addr']
+      except:
+        ip = None
+
+      name = server.name
+      console_url = server.get_vnc_console('novnc')['console']['url']
+
+      # create custom server object and append to list
+      s = Server(name, console_url, ip)
+      servers.append(s)
+
+
+  return template('connections', servers=servers, reservations=reservations,
+                   name=student.name, is_admin=student.is_admin)
 
 
 #********************************************************************
@@ -292,19 +309,29 @@ def admin_listjobs(db):
   inspector = celery.control.inspect()
   scheduled_jobs = inspector.scheduled()
   hostname = scheduled_jobs.keys()[0]
-  scheduled_jobs = scheduled_jobs['localhost.localdomain']
+  scheduled_jobs = scheduled_jobs[hostname]
 
   jobs = []
+
+  # Create a named tuple to put all the job data into
   Job = namedtuple('Job', ['eta', 'name', 'id', 'status'])
+
   for j in scheduled_jobs:
     eta = j['eta']
     name = j['request']['name']
     id = j['request']['id']
-    result = AsyncResult(id)
-    status = result.status
+    try:
+      result = AsyncResult(id)
+    except:
+      result = None
 
-    job = Job(eta, name, id, status)
-    jobs.append(job)
+    if result:
+      status = result.status
+      job = Job(eta, name, id, status)
+      jobs.append(job)
+    else:
+      # jobs is empty
+      pass
 
 
   return template('admin_listjobs', jobs=jobs, name=student.name, is_admin=student.is_admin)

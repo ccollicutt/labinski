@@ -11,6 +11,7 @@ from settings import *
 #celery.config_from_object('celeryconfig')
 
 from tasks import *
+from novaapi import *
 
 def ipython():
 	from IPython.Shell import IPShellEmbed
@@ -21,6 +22,13 @@ def ipython():
 	student = session.query(User).filter_by(name='curtis').first()
 	_class = session.query(Class).filter_by(name='OPENSTACK 101').first()
 	image = session.query(Image).filter_by(name='CentOS 6').first()
+
+	try:
+		servers = nova.servers.list()
+	except:
+		servers = None
+
+	
 
 	#reservation = Reservation(user_id=student.id, class_id=_class.id, image_id=image.id)
 
@@ -45,7 +53,7 @@ def init():
 	# Add user
 	#
 
-	users = ['curtis', 'barton']
+	users = ['curtis', 'barton', 'joe', 'david', 'cameron']
 
 	for u in users:
 		user = User(name=u, email=u + '@doesntexist.com')
