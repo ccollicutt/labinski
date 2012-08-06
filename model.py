@@ -33,6 +33,7 @@ imagetypes_services_assoc = Table('imagetypes_service', Base.metadata,
     Column('service_id', Integer, ForeignKey('services.id'))
 )
 
+
 class User(Base):
 	__tablename__ = 'users'
 	id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
@@ -46,14 +47,19 @@ class User(Base):
 	notifications = relationship('Notification', backref='users', cascade="all, delete, delete-orphan")
 	is_admin = Column(Boolean, default=False)
 
+
 class Reservation(Base):
 	__tablename__ = 'reservations'
 	id = Column(Integer, Sequence('reservation_id_seq'), primary_key=True)
 	user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 	image_id = Column(Integer, ForeignKey('images.id'), nullable=False)
 	class_id = Column(Integer, ForeignKey('classes.id'), nullable=False)
+
 	# OpenStack instance id
 	instance_id = Column(String(50))
+
+	# Each reservation will have 1+ ports forwarded to a service
+	ports_forwarded = relationship("PortsForwarded", uselist=False, backref="reservations", cascade="all, delete, delete-orphan")
 
 	# These are the jobs created by reservation_request
 	stop_instance_job = Column(UnicodeText)
@@ -61,11 +67,21 @@ class Reservation(Base):
 	warn_reservation_ending_job = Column(UnicodeText)
 	check_instance_job = Column(UnicodeText)
 
+
+class PortsForwarded(Base):
+	__tablename__ = 'ports_forwarded'
+	id = Column(Integer, Sequence('ports_fowarded_id_seq'), primary_key=True)
+	port = Column(Integer, nullable=False)
+	reservation_id = Column(Integer, ForeignKey('reservations.id'))
+	service_id = Column(Integer, ForeignKey('services.id'))
+
+
 class Class(Base):
 	__tablename__ = 'classes'
 	id = Column(Integer, Sequence('class_id_seq'), primary_key=True)
 	name = Column(String(50), nullable=False)
 	reservations = relationship("Reservation", backref='classes', cascade="all, delete, delete-orphan")
+
 
 class Image(Base):
 	__tablename__= 'images'
@@ -91,7 +107,7 @@ class Notification(Base):
 class Service(Base):
 	__tablename__ = 'services'
 	id = Column(Integer, Sequence('service_id_seq'), primary_key=True)
-	# Guess someday this might have to be a port range
+	# Guess someday this might have to be a port range, or multiple ports?
 	port = Column(Integer, nullable=False)
 	name = Column(String(50), nullable=False)
 	description = Column(UnicodeText)

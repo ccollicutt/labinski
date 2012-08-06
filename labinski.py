@@ -272,7 +272,8 @@ def delete_instance(id, db):
   except:
     abort(401, "Could not delete reservation")
 
-  notification = Notification(user_id=student.id, message="Reservation with id " + str(id) + " was deleted", status="INFO" )
+  notification = Notification(user_id=student.id, message="Reservation with id " \
+                              + str(id) + " was deleted", status="INFO" )
   db.add(notification)
   db.commit()  
 
@@ -289,7 +290,8 @@ def notifications(db):
     notifications = student.notifications
     notifications.reverse()
 
-  return template('notifications', notifications=notifications, name=student.name, is_admin=student.is_admin)
+  return template('notifications', notifications=notifications, name=student.name, 
+                  is_admin=student.is_admin)
 
 #
 # ADMIN
