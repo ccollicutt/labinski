@@ -207,12 +207,19 @@ def connections(db):
 
     if server:
       # Take the first network to get the IP from
-      network = server.addresses.keys()[0]
       try:
-        # First IP from first network
-        # Sometimes the instance will exist but not have an IP yet
-        ip = server.addresses[network][0]['addr']
+        network = server.addresses.keys()[0]
       except:
+        network = None
+
+      if network:
+        try:
+          # First IP from first network
+          # Sometimes the instance will exist but not have an IP yet
+          ip = server.addresses[network][0]['addr']
+        except:
+          ip = None
+      else:
         ip = None
 
       name = server.name

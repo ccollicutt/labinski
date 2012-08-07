@@ -3,7 +3,7 @@ from novaapi import nova
 from model import *
 from settings import *
 import datetime
-from model import Notification
+from model import Notification, Reservation
 
 celery = Celery()
 celery.config_from_object('celeryconfig')
@@ -30,12 +30,17 @@ def start_instance(reservation_id):
 	# Get the db for this session
 	#db = Session.object_session(reservation)
 
+	# Make sure the keyname exists XXX SECURITY? XXX
+	try:
+		key_name = nova.keypair.find(name=KEY_NAME)
+	except:
+		key_name=None
 
     # Create a server
-    # XXX FIX ME XXX IMAGE should be reservation.image_id etc
 	server = nova.servers.create(flavor=reservation.images.flavors.openstack_flavor_id,
 								 image=reservation.images.os_image_id,
-								 name=reservation.images.name)
+								 name=reservation.images.name,
+								 key_name=key_name)
 
 	if server:
 		reservation.instance_id = server.id

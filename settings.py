@@ -8,3 +8,6 @@ DATABASE = "postgresql://labinski:labinskipw@localhost/labinski"
 JOBS_DATABASE = "postgresql://ap_jobs:ap_jobs@localhost/ap_jobs"
 ROOT_DIR = "/usr/share/labinski"
 IP="192.168.33.10"
+# Port forwarding range
+PORT_RANGE = range(2000, 3000)
+KEY_NAME = "vcl"
