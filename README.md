@@ -15,9 +15,8 @@ Requirements
 * A database that is supported by SQLAlchemy (eg. postgres)
 * python (developed on python 2.6.6 in CentOS 6)
     * Novaclient
-    * Elixir, which requires SQLAlchemy
+    * Celery
     * Bottle
-    * Beaker
     * Others...see pip_freeze.txt
 
 Usage
@@ -31,7 +30,7 @@ cd labinski
 ```
 
 * Edit the settings.py file, make appropriate changes
-* Edit the openstackrc.py file, make appropriate changes
+* Edit/create the openstackrc.py file, make appropriate changes
 
 ```
 python manage.py reset

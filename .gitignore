@@ -7,3 +7,4 @@ userinfo
 #*_sqlalchemy.py
 build/
 openstackrc.py
+test/proxy_test.py

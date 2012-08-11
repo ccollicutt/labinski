@@ -317,30 +317,34 @@ def admin_listjobs(db):
 
   inspector = celery.control.inspect()
   scheduled_jobs = inspector.scheduled()
-  hostname = scheduled_jobs.keys()[0]
-  scheduled_jobs = scheduled_jobs[hostname]
+  try:
+    hostname = scheduled_jobs.keys()[0]
+    scheduled_jobs = scheduled_jobs[hostname]
+  except:
+    scheduled_jobs = None
 
   jobs = []
 
   # Create a named tuple to put all the job data into
   Job = namedtuple('Job', ['eta', 'name', 'id', 'status'])
 
-  for j in scheduled_jobs:
-    eta = j['eta']
-    name = j['request']['name']
-    id = j['request']['id']
-    try:
-      result = AsyncResult(id)
-    except:
-      result = None
+  if scheduled_jobs:
+    for j in scheduled_jobs:
+      eta = j['eta']
+      name = j['request']['name']
+      id = j['request']['id']
+      try:
+        result = AsyncResult(id)
+      except:
+        result = None
 
-    if result:
-      status = result.status
-      job = Job(eta, name, id, status)
-      jobs.append(job)
-    else:
-      # jobs is empty
-      pass
+      if result:
+        status = result.status
+        job = Job(eta, name, id, status)
+        jobs.append(job)
+      else:
+        # jobs is empty
+        pass
 
 
   return template('admin_listjobs', jobs=jobs, name=student.name, is_admin=student.is_admin)
